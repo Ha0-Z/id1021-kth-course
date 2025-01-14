@@ -10,3 +10,11 @@ CTRL+K then V
 -o0 
 ```
 Compile without optimization
+
+Stablelize the prosessor speed
+Make the prossesor only have one thread and only allow the program to run on it
+Cache the code before actually running
+
+use gcc -c to see the machine code
+
+mathematical notations
