@@ -1,0 +1,13 @@
+Running in operating system mint Linux version ___ .
+
+ Java, the recommended programming language for the course, will be used
+ for algorithm representation. The research utilizes Visual Studio Code as
+ the IDE for Java code implementation. Some of the foundational code for
+ this research is credited to the KTH course instructor [teacher]. The testing
+ environment comprises a desktop PC powered by an Intel Core i7-13700k
+ CPU. During testing, all extraneous system interactions, such as mouse
+ movements or keyboard inputs, will be minimized. Additionally, background
+ software will be terminated, and internet connections severed to ensure a
+ controlled environment. Given the Intel Core i7-13700k’s 16 cores and 24
+ logical threads, most cores remain idle during testing, ensuring a stable and
+ efficient runtime environment devoid of system interruptions

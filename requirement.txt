@@ -1,0 +1,5 @@
+minst 4 page,
+fil namn: Hao Zhang- uppgift x,
+bilder i vector form,
+minst 3 signifikanta siffror,
+

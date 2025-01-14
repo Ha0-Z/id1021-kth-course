@@ -1,0 +1,1 @@
+gcc code.c -o0
