@@ -7,6 +7,7 @@ typedef struct stack
     int size;
     int *array;
 } stack;
+
 stack *new_stack(int size)
 {
     int *array = (int *)malloc(size * sizeof(int));
@@ -14,7 +15,7 @@ stack *new_stack(int size)
     
     stk->top = -1; // After push the first element top become 0
     stk->size = size;
-
+    stk->array = array;
  return stk;
 }
 void push(stack *stk, int val)
