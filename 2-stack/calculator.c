@@ -31,7 +31,6 @@ void push(stack *stk, int val)
 
         stk->size = newSize;
         stk->array = copy;
-        printf("Size increase to: %d\n", newSize);
     }
 
     // Push val to the top of the stack and increment top by one.
@@ -57,9 +56,7 @@ int pop(stack *stk)
             free(stk->array);
 
             stk->size = newSize;
-            stk->array = copy;
-            
-            printf("Size decreases to: %d\n", newSize);
+            stk->array = copy;            
         }   
         stk->top = stk->top - 1;
         return stk->array[(stk->top + 1)];
@@ -68,15 +65,17 @@ int pop(stack *stk)
 
 }
 
+
+
 int main() {
     stack *stk = new_stack(16);
     printf("HP-35 pocket calculator\n");
-    char *buffer = NULL; // Pointer to hold dynamically allocated buffer
-    size_t n = 0;        // Size of the buffer
+    size_t n = 100;
+    char *buffer = (char *)malloc(n * sizeof(char));
     bool run = true;
     while(run) {
         printf(" > ");
-        ssize_t line_size = getline(&buffer, &n, stdin);
+        getline(&buffer, &n, stdin);
         if (strcmp(buffer, "\n") == 0) {
             run = false;
         } else if (strcmp(buffer, "+\n") == 0) {
