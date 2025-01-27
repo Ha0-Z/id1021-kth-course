@@ -19,4 +19,4 @@ use gcc -c to see the machine code
 
 mathematical notations
 
-gcc -o run dynamic-stack.c 
+gcc -O0 -o run code.c
