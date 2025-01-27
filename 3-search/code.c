@@ -71,7 +71,7 @@ bool binary_search(int array[], int length, int key) {
         return false;
     }
 }
-bool recursive(int[] array, int length, int key, int first, int last) {
+bool recursive(int *array, int length, int key, int first, int last) {
     // jump to the middle
     int index = first + ((last - first) / 2);
     if (array[index] == key) {
@@ -88,20 +88,22 @@ bool recursive(int[] array, int length, int key, int first, int last) {
 
 void bench (int loops, int minItems, int maxItems,int loopGetMinTime) {
     printf("Run of %d loops each try and %d and %d items\n", loops, minItems, maxItems);
-    printf("Number of loops, Size of array, Time, Time per loop, time per element\n");
+    printf("Loops, Array size, TimeMin, TimeMax, Arvage\n");
     // Create a array with malloc with i elements.
     for(int arraySize = minItems; arraySize < maxItems; arraySize= arraySize * 2) {
         long timeMin = LONG_MAX;
+        long timeMax = 0;
+        long timeSum = 0;
 
         // Loop loopGetMinTime times to get the minumum run time.
         for (int i = 0; i < loopGetMinTime; i++) {
             // Fill random items in the dataset
             //
-            int *list = unsorted_array(arraySize);
 
+            int *list = sorted(arraySize);
             // Create a for loop which have index of n add doubles after each iteration.
-            int *keys = (int*)malloc(loops*sizeof(int));
-            for(int n = 1; n <= loops; n++) {
+            int *keys = (int*)malloc(arraySize*sizeof(int));
+            for(int n = 1; n < arraySize; n++) {
                 keys[n] = list[rand()%arraySize];
             }
 
@@ -112,10 +114,8 @@ void bench (int loops, int minItems, int maxItems,int loopGetMinTime) {
             // Run the actual code here:
             //
 
-            // Middle element
             for (int x = 0; x < loops; x++) {
-                int key = keys[x];
-                unsorted_search(list, arraySize, key);
+                unsorted_search(list, arraySize, keys[x]);
             }
 
             clock_gettime(CLOCK_MONOTONIC, &t_stop);
@@ -123,15 +123,22 @@ void bench (int loops, int minItems, int maxItems,int loopGetMinTime) {
             if (wall < timeMin) {
                 timeMin = wall;
             }
+            if (wall > timeMax) {
+                timeMax = wall;
+            }
+            timeSum += wall;
+            
             free(list);
             free(keys);
 
         }
 
-        printf("%d %d %0.2fns %0.2fns %0.2fns\n", loops, arraySize, (double)timeMin, (double)timeMin / loops, (double)timeMin / arraySize);
+
+        printf("%d   %d   %0.2fns   %0.2fns   %0.2fns \n", 
+        loops, arraySize, (double)timeMin /arraySize, (double)timeMax /arraySize, (double)timeSum / loopGetMinTime /arraySize);
     }
 } 
 
 int main () {
-    bench(10, 100, 100000, 50);
+    bench(1000, 1000, 2000000, 50);
 }

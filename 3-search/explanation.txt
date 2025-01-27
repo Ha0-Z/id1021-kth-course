@@ -1,0 +1,41 @@
+Introduction:
+For the course ID1021 - Algorithms and Data Structures, this report examines the implementation of array searching with unsorted array, sorted array and binary search.
+In this report we will benchmark the code then analyzing their performance characteristics and practical applications
+
+Method:
+The following library have been used. stdlib.h, stdio.h, sys/time.h, time.h,
+limits.h and stdbool.h. Code from the instruction and array.c have been used for finnish the report and track the run time. The run time is the _____ . Overleaf.com have been used as text editor and pdf exporter.
+Running on CPU intel-N100 with default frecuency. Using gcc to compile the
+original c program to machine code with no optimization. Random number have been used to generate items in the array to perform the search.
+*value of the key is randomly selected, therefore we cannot use the minimal run time, reason of it is if the program hit the value by the first time, chance of 1/n. The program will quit immindiealy. 
+*There fore we need to record the arvage time.
+
+
+Hypothesis
+This report will go through sevral approach of searching, from "unsorted search" which go through every element on the array sequence to binary search which search from a sorted array sequence.
+
+What I assume the time compliexity for "unsorted search" is O(n), the reason of it is we do not know where the element have been placed on the sequence.
+Which means we need to go through the whole sequence to get the element. If the element exists on the array then the expected time compliexity is half of the length of the sequence n/2, if the element do not exist, it become n.
+
+If the sequence is sorted then the expected time compliexity become n*log(n), and the reason of it is we do not need go through the whole sequence, instead we devide the sequence always to two. And check if the element is the one in the middle and repeat this on till we found the element or reached out all elements. 
+This means the amount of operation is log2(n) of the whole sequence which is log2(n), every time the sequence doubles + 1, the cycle become one layer.
+
+Benchmark result:
+Unsorted search:
+
+Sorted search:
+
+Binary Search:
+
+Recursive sesarch:
+
+
+Points:
+
+timeSum :
+
+Time min:
+
+Time max:
+
+t(n) = c1 +c2 +(c3 +c4 +c5)×n+c3 +
