@@ -18,3 +18,5 @@ Cache the code before actually running
 use gcc -c to see the machine code
 
 mathematical notations
+
+gcc -o run dynamic-stack.c 
