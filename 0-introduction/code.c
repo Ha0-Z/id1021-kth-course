@@ -23,6 +23,21 @@ long nano_seconds(struct timespec *t_start, struct timespec *t_stop)
 //     }
 // }
 
+// int main()
+// {
+//     struct timespec t_start, t_stop;
+//     int given[] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 0};
+//     int sum = 0;
+//     for (int i = 0; i < 10; i++)
+//     {
+//         clock_gettime(CLOCK_MONOTONIC, &t_start);
+//         sum += given[i];
+//         clock_gettime(CLOCK_MONOTONIC, &t_stop);
+//         long wall = nano_seconds(&t_start, &t_stop);
+//         printf("one operation in %ld ns\n", wall);
+//     }
+// }
+
 // Approach 2
 
 // int main()
@@ -51,10 +66,11 @@ long bench(int n, int loop)
         indx[i] = rand() % n;
     int sum = 0;
     clock_gettime(CLOCK_MONOTONIC, &t_start);
-    for (int i = 0; i < loop; i++)
-        sum += array[indx[i]];
+    for (int i = 0; i < loop; i++) sum += array[indx[i]];
     clock_gettime(CLOCK_MONOTONIC, &t_stop);
     long wall = nano_seconds(&t_start, &t_stop);
+    printf("%d Sum\n", sum);
+
     return wall;
 }
 
@@ -64,7 +80,7 @@ long bench(int n, int loop)
 // {
 //     for (int i = 0; i < 10; i++)
 //     {
-//         long wall = bench(1000, 3);
+//         long wall = bench(1000, 1000);
 //         printf("time : %ld ns\n", wall);
 //     }
 // }
@@ -167,11 +183,13 @@ long duplicates(int n)
 {
     struct timespec t_start, t_stop;
     int *array_a = (int *)malloc(n * sizeof(int));
-    for (int i = 0; i < n; i++){
+    for (int i = 0; i < n; i++)
+    {
         array_a[i] = rand() % (n * 2);
     }
     int *array_b = (int *)malloc(n * sizeof(int));
-    for (int i = 0; i < n; i++) {
+    for (int i = 0; i < n; i++)
+    {
         array_b[i] = rand() % (n * 2);
     }
     int sum = 0;

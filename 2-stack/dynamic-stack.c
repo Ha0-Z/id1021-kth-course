@@ -94,19 +94,23 @@ long nano_seconds(struct timespec *t_start, struct timespec *t_stop)
 
 
 int main() {
+    // printf("Stack become 10 times larger instead 2 times and become 1/10 when reach 1/20 when reach max: \n");
+    int stackLength = 1;
+    printf("initial stack length is: %d \n", stackLength);
+
     // Create a for loop which have index of n add doubles after each iteration
     for(int n = 1000; n <= 128000; n = n * 2) {
         // Create a array with malloc with n elements;
         int *list = (int *)malloc(n * sizeof(int));
         for(int i = 0; i < n; i++) {
-            list[i] = rand();;
+            list[i] = rand();
         }
         // Create a stack with new_stack(0);
-        stack *myStack = new_stack(1);
+        stack *myStack = new_stack(stackLength);
 
         long timeMin = LONG_MAX;
 
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 50; i++) {
 
             struct timespec t_start, t_stop;
             clock_gettime(CLOCK_MONOTONIC, &t_start);
@@ -126,9 +130,9 @@ int main() {
         }
 
         printf("%d %0.2f %0.2f ns\n", n, (double)timeMin, (double)timeMin / n);
+        free(list);
+        free(myStack);
     }
-    free(list);
-    free(myStack);
 
 }
 

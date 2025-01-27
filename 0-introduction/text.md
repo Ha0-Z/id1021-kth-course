@@ -89,11 +89,6 @@ n^n since you need to go through all element
 ## Discussion
 
 
-You said
-I need to go throught this document and write a report of it.
-could you please go throught this document and give me some idea about what i could write about?
-Copilot said
-Sure thing! The document is about exploring the efficiency of different operations over an array of elements in C. Here are some key points you could include in your report:
 
 Introduction: Explain the purpose of the assignment, which is to explore the efficiency of different operations over an array of elements and understand the differences between O(1), O(n), and O(n^2) complexities.
 
@@ -125,8 +120,6 @@ You can use these points as a framework for your report and expand on each secti
 
 
 You said
-Here is some note I have on my experiment with the tasks:"The clock- Random access
-The code of clock which the array-c.pdf have provided have a few interellged procedure which determine the time in ns where the procedure take to run. Since it take some clockcyckle to record the current time with procedure clock_gettime(CLOCK_MONOTONIC, &t_stop), there fore it will take some time before it ends.
 
 Result of running the clock
 173 ns 61 ns 60 ns 58 ns 56 ns 59 ns 59 ns 59 ns 59 ns 60 ns
