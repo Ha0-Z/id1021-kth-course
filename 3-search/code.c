@@ -43,35 +43,39 @@ int *unsorted_array(int size) {
 bool binary_search(int numbers[], int array_size, int target) {
     int left_bound = 0;
     int right_bound = array_size - 1;
-    while (true) {
-        int mid_point = array_size / 2;
+    // With only while(true) the program will not stop
+    while (left_bound <= right_bound) {
+        int mid_point = left_bound + (right_bound - left_bound) / 2; 
+        // Return after found the number
         if (numbers[mid_point] == target) {
             return true;
         }
-        if (numbers[mid_point] < target && mid_point < right_bound) {
-            left_bound = mid_point;
-            continue;
+        if (numbers[mid_point] < target) {
+            left_bound = mid_point + 1;
+        } else {
+            // Not equal or smaller than target, then it must be larger than target.
+            right_bound = mid_point - 1; 
         }
-        if (numbers[mid_point] > target && mid_point > left_bound) {
-            right_bound = mid_point;
-            continue;
-        }
-        return false;
     }
+    return false;
 }
 
+
 bool recursive(int *numbers, int array_size, int target, int left_bound, int right_bound) {
+    if (left_bound > right_bound) {
+        return false;
+    }
+    
     int mid_point = left_bound + ((right_bound - left_bound) / 2);
+    
     if (numbers[mid_point] == target) {
         return true;
     }
-    if (numbers[mid_point] < target && mid_point < right_bound) {
-        recursive(numbers, array_size, target, mid_point, right_bound);
+    if (numbers[mid_point] < target) {
+        return recursive(numbers, array_size, target, mid_point + 1, right_bound);
     }
-    if (numbers[mid_point] > target && mid_point > left_bound) {
-        recursive(numbers, array_size, target, left_bound, mid_point);
-    }
-    return false;
+    // Not equal or smaller than target, then it must be larger than target.
+    return recursive(numbers, array_size, target, left_bound, mid_point - 1);
 }
 
 void bench(int num_searches, int min_array_size, int max_array_size, int num_iterations) {
@@ -86,7 +90,7 @@ void bench(int num_searches, int min_array_size, int max_array_size, int num_ite
         for (int iteration = 0; iteration < num_iterations; iteration++) {
 
             // DATASET
-            int *test_array = sorted(current_size);
+            int *test_array = unsorted_array(current_size);
 
             int *search_targets = (int*)malloc(num_searches * sizeof(int));
             for(int i = 1; i < num_searches; i++) {
@@ -99,9 +103,9 @@ void bench(int num_searches, int min_array_size, int max_array_size, int num_ite
 
             // CODE TO BENCHMARK
             for (int search_count = 0; search_count < num_searches; search_count++) {
-                unsorted_search(test_array, current_size, search_targets[search_count]);
-                // binary_search(test_array, current_size, search_targets[search_count]);
-                // recursive(test_array, current_size, search_targets[0], 0, current_size - 1);    
+                // unsorted_search(test_array, current_size, search_targets[search_count]);
+                binary_search(test_array, current_size, search_targets[search_count]);
+                // recursive(test_array, current_size, search_targets[0], 0, current_size - 1);  
             }
 
             clock_gettime(CLOCK_MONOTONIC, &end_time);
@@ -117,13 +121,13 @@ void bench(int num_searches, int min_array_size, int max_array_size, int num_ite
 
         printf("%d   %d   %0.2fns   %0.2fns   %0.2fns \n", 
             num_searches, current_size, 
-            (double)min_time / current_size, 
-            (double)max_time / current_size, 
-            (double)total_time / num_iterations / current_size);
+            (double)min_time / num_searches, 
+            (double)max_time / num_searches, 
+            (double)total_time / num_iterations / num_searches);
     }
 } 
 
 int main() {
-    bench(1000, 1000, 2000000, 50);
+    bench(1000, 10000, 2000000, 50);
     return 0;
 }

@@ -5,8 +5,13 @@ In this report we will benchmark the code then analyzing their performance chara
 Method:
 The following library have been used. stdlib.h, stdio.h, sys/time.h, time.h,
 limits.h and stdbool.h. Code from the instruction and array.c have been used for finnish the report and track the run time. The run time is the _____ . Overleaf.com have been used as text editor and pdf exporter.
-Running on CPU intel-N100 with default frecuency. Using gcc to compile the
-original c program to machine code with no optimization. Random number have been used to generate items in the array to perform the search.
+Running on CPU intel-13700k with default frecuency. Using gcc to compile the
+original c program to machine code with no optimization. 
+Complete source code can be found in "https://github.com/Ha0-Z/id1021-kth-course"
+
+Random number have been used to generate items in the array to perform the search.
+the key to search for the elements have also been randomly selected. 
+To avoid accident of the key is also the first element which will 
 *value of the key is randomly selected, therefore we cannot use the minimal run time, reason of it is if the program hit the value by the first time, chance of 1/n. The program will quit immindiealy. 
 *There fore we need to record the arvage time.
 
@@ -20,22 +25,158 @@ Which means we need to go through the whole sequence to get the element. If the 
 If the sequence is sorted then the expected time compliexity become n*log(n), and the reason of it is we do not need go through the whole sequence, instead we devide the sequence always to two. And check if the element is the one in the middle and repeat this on till we found the element or reached out all elements. 
 This means the amount of operation is log2(n) of the whole sequence which is log2(n), every time the sequence doubles + 1, the cycle become one layer.
 
-Benchmark result:
-Unsorted search:
 
-Sorted search:
+
+Linear Search:
+Unsorted Arrays:
+
+Code of generating unsorted array:'
+int *unsorted_array(int size) {
+    int *numbers = sorted(size);
+    for (int i = 0; i < size; i++) {
+        int random_index = rand() % size;
+        int temp = numbers[i];
+        numbers[i] = numbers[random_index];
+        numbers[random_index] = temp;
+    }
+    return numbers;
+}
+'
+
+Sorted Arrays:
+To search from sorted array do not have huge performance inprovement, due to I have value from random selected index in the array. 
+And since in the instruction did't provide a worth approach of go through all value in the array then return based on if there is any founded value.
+But if we made the program run til the end no matter we found or not found the value. The expected time will doubles from the current data.
+Reason for it is since the key I provide comes from a random selected index on the array. And the sample is usually 1000 search. There fore on arvage the index for the item is in the middle of the array.
+Which means we expect we have 50% of chance to find the index in the first half and 50% of chance for find it in the secound half of the array.
+And 100% is double 50% there fore the expected time will doubles.
 
 Binary Search:
+Code for bianry search:'
+bool binary_search(int numbers[], int array_size, int target) {
+    int left_bound = 0;
+    int right_bound = array_size - 1;
+    // With only while(true) the program will not stop
+    while (left_bound <= right_bound) {
+        int mid_point = left_bound + (right_bound - left_bound) / 2; 
+        // Return after found the number
+        if (numbers[mid_point] == target) {
+            return true;
+        }
+        if (numbers[mid_point] < target) {
+            left_bound = mid_point + 1;
+        } else {
+            // Not equal or smaller than target, then it must be larger than target.
+            right_bound = mid_point - 1; 
+        }
+    }
+    return false;
+}
+'
+We can clearly see the run time have droped significant for long array size, it have droped 2*10⁵ to 1*10² for array with size near 1 milion.
 
-Recursive sesarch:
+Recursive Binary:
+Code:'
+bool recursive(int *numbers, int array_size, int target, int left_bound, int right_bound) {
+    if (left_bound > right_bound) {
+        return false;
+    }
+    
+    int mid_point = left_bound + ((right_bound - left_bound) / 2);
+    
+    if (numbers[mid_point] == target) {
+        return true;
+    }
+    if (numbers[mid_point] < target) {
+        return recursive(numbers, array_size, target, mid_point + 1, right_bound);
+    }
+    // Not equal or smaller than target, then it must be larger than target.
+    return recursive(numbers, array_size, target, left_bound, mid_point - 1);
+}
+'
+This version of approach gives best run time per search. 56 ns for array with length 1280000.  
+
+Linear Search:
+    Unsorted search:
+Running 1000 searches on arrays from size 1000 to 2000000
+Loops   Array size   TimeMin   TimeMax   Average
+1000   1000   289.89ns   1215.68ns   562.12ns 
+1000   2000   439.80ns   624.66ns   469.89ns 
+1000   4000   864.12ns   937.07ns   904.37ns 
+1000   8000   1709.94ns   1846.38ns   1789.05ns 
+1000   16000   3371.26ns   3682.78ns   3546.12ns 
+1000   32000   6670.56ns   14183.95ns   7455.39ns 
+1000   64000   13725.58ns   14860.35ns   14255.70ns 
+1000   128000   27538.35ns   34236.11ns   29131.69ns 
+1000   256000   54932.59ns   60625.35ns   57857.38ns 
+1000   512000   109349.87ns   119944.51ns   115249.42ns 
+1000   1024000   222189.30ns   242119.39ns   230399.79ns 
+
+    Sorted search:
+Running 1000 searches on arrays from size 1000 to 2000000
+Loops   Array size   TimeMin   TimeMax   Average
+1000   1000   220.75ns   1192.73ns   340.04ns 
+1000   2000   434.27ns   495.90ns   464.01ns 
+1000   4000   886.79ns   998.67ns   921.15ns 
+1000   8000   1737.92ns   1892.22ns   1799.82ns 
+1000   16000   3379.69ns   3692.44ns   3554.67ns 
+1000   32000   6875.78ns   7485.80ns   7141.56ns 
+1000   64000   13810.17ns   15013.38ns   14289.30ns 
+1000   128000   27523.57ns   29906.77ns   28555.14ns 
+1000   256000   54718.50ns   60830.14ns   56975.80ns 
+1000   512000   109099.77ns   121995.34ns   114775.84ns 
+1000   1024000   216472.08ns   244422.58ns   229325.08ns 
 
 
-Points:
 
-timeSum :
+Binary Search(sorted data):
+Running 1000 searches on arrays from size 10000 to 2000000
+Loops   Array size   TimeMin   TimeMax   Average
+1000   10000   65.38ns   355.07ns   110.60ns 
+1000   20000   72.11ns   78.18ns   75.08ns 
+1000   40000   77.81ns   85.70ns   81.55ns 
+1000   80000   82.84ns   112.77ns   87.61ns 
+1000   160000   90.00ns   119.30ns   94.17ns 
+1000   320000   96.14ns   109.50ns   101.24ns 
+1000   640000   105.41ns   129.46ns   109.94ns 
+1000   1280000   120.22ns   164.00ns   125.32ns 
 
-Time min:
 
-Time max:
+Recursive sesarch(sorted data):
+Running 1000 searches on arrays from size 10000 to 2000000
+Loops   Array size   TimeMin   TimeMax   Average
+1000   10000   40.91ns   203.50ns   109.30ns 
+1000   20000   44.59ns   88.72ns   50.65ns 
+1000   40000   47.38ns   123.27ns   50.16ns 
+1000   80000   43.83ns   92.50ns   47.37ns 
+1000   160000   45.50ns   55.42ns   47.52ns 
+1000   320000   47.98ns   58.60ns   49.30ns 
+1000   640000   50.00ns   52.69ns   51.46ns 
+1000   1280000   52.73ns   136.11ns   56.39ns 
 
-t(n) = c1 +c2 +(c3 +c4 +c5)×n+c3 +
+Running 8000 searches on arrays from size 1000 to 20000
+Loops   Array size   TimeMin   TimeMax   Average
+8000   1000   226.33ns   940.32ns   256.56ns 
+8000   2000   443.23ns   464.81ns   451.38ns 
+8000   4000   860.63ns   900.56ns   882.51ns 
+8000   8000   1723.13ns   1820.39ns   1754.20ns 
+8000   16000   3455.70ns   3643.30ns   3522.41ns 
+
+
+
+Running 64000 searches on arrays from size 1000 to 20000
+Loops   Array size   TimeMin   TimeMax   Average
+64000   1000   227.97ns   366.15ns   238.57ns 
+64000   2000   444.20ns   459.31ns   449.42ns 
+64000   4000   875.90ns   899.45ns   883.32ns 
+64000   8000   1736.44ns   1786.00ns   1749.58ns 
+64000   16000   3491.76ns   3547.67ns   3511.78ns 
+
+Conclusion:
+
+In the table ? we can also see the changing in array size but same iteration of searching will not affect the run time per search.
+The search algorithm is varies from time, the linear search have a time compliexity of O(n) and search from sorted dataset will not inprove the result significant.
+Unlike leanear search the binary search have a complexity of O(log(n)), which is a huge inprovement when facing big dataset.
+But there is also difference between normal binary search and recursive binary search, by some reason the recursive version only uses 50% of the time takes for the normal version.
+I belive the problem comes from the compilor, after not having -O0 flag(disable optimization completly) the arvage run time per search drop from near 100ns to 70ns which only have 20ns difference with the recursive version.
+But since the logic is the same therefore it I can also assume the cpu 13700k have some sort of adventage of calling a function instead do a while operation. 
