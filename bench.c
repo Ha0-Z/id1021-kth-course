@@ -1,48 +1,86 @@
-#include <stdlib.h>
 #include <stdio.h>
-#include <sys/time.h>
+#include <stdlib.h>
 #include <time.h>
 #include <limits.h>
+#include <sys/time.h>
+#include <stdbool.h>
 
-long nano_seconds(struct timespec *t_start, struct timespec *t_stop)
-{
-    return (t_stop->tv_nsec - t_start->tv_nsec) +
-           (t_stop->tv_sec - t_start->tv_sec) * 1000000000;
+long nano_seconds(struct timespec *start_time, struct timespec *end_time) {
+    return (end_time->tv_nsec - start_time->tv_nsec) +
+           (end_time->tv_sec - start_time->tv_sec) * 1000000000;
 }
 
-void bench (int minLoops, int maxLoops, int minItems, int maxItems,int loopGetMinTime) {
-    printf("Run time between %d and %d loops and %d and %d items\n", minLoops, maxLoops, minItems, maxItems);
-    printf("Number of loops, Size of array, Time, Time per loop\n");
-    // Create a for loop which have index of n add doubles after each iteration.
-    for(int n = minLoops; n <= maxLoops; n = n * 2) {
-        // Create a array with malloc with i elements.
-        for(int arraySize = minItems; arraySize < maxItems; arraySize= arraySize * 2) {
-            long timeMin = LONG_MAX;
+int *sorted(int size) {
+    int *numbers = (int*)malloc(size * sizeof(int));
+    int current_value = 0;
+    for (int i = 0; i < size; i++) {
+        current_value += rand() % 10 + 1;
+        numbers[i] = current_value;
+    }
+    return numbers;
+}
 
-            // Loop loopGetMinTime times to get the minumum run time.
-            for (int i = 0; i < loopGetMinTime; i++) {
-                // Fill random items in the dataset
-                //
+int *unsorted_array(int size) {
+    int *numbers = sorted(size);
+    for (int i = 0; i < size; i++) {
+        int random_index = rand() % size;
+        int temp = numbers[i];
+        numbers[i] = numbers[random_index];
+        numbers[random_index] = temp;
+    }
+    return numbers;
+}
 
 
-                struct timespec t_start, t_stop;
-                clock_gettime(CLOCK_MONOTONIC, &t_start);
-                for (int x = 0; x < n; x++) {
-                    // Run the actual code here:
-                    //
+void bench(int num_searches, int min_array_size, int max_array_size, int num_iterations) {
+    printf("Running %d searches on arrays from size %d to %d\n", num_searches, min_array_size, max_array_size);
+    printf("Loops   Array size   TimeMin   TimeMax   Average\n");
 
-                }
+    for(int current_size = min_array_size; current_size < max_array_size; current_size *= 2) {
+        long min_time = LONG_MAX;
+        long max_time = 0;
+        long total_time = 0;
 
-                clock_gettime(CLOCK_MONOTONIC, &t_stop);
-                long wall = nano_seconds(&t_start, &t_stop);
-                if (wall < timeMin) {
-                    timeMin = wall;
-                }
-                free(list);
+        for (int iteration = 0; iteration < num_iterations; iteration++) {
+
+            // DATASET
+            int *test_array = unsorted_array(current_size);
+
+            int *search_targets = (int*)malloc(num_searches * sizeof(int));
+            for(int i = 1; i < num_searches; i++) {
+                search_targets[i] = test_array[rand() % current_size];
+            }
+
+
+            struct timespec start_time, end_time;
+            clock_gettime(CLOCK_MONOTONIC, &start_time);
+
+            // CODE TO BENCHMARK
+            for (int search_count = 0; search_count < num_searches; search_count++) {
+
 
             }
 
-            printf("%d %d %0.2f %0.2f ns\n", n, arraySize, (double)timeMin, (double)timeMin / n);
+            clock_gettime(CLOCK_MONOTONIC, &end_time);
+            long wall = nano_seconds(&start_time, &end_time);
+            
+            min_time = (wall < min_time) ? wall : min_time;
+            max_time = (wall > max_time) ? wall : max_time;
+            total_time += wall;
+            
+            free(test_array);
+            free(search_targets);
         }
+
+        printf("%d   %d   %0.2fns   %0.2fns   %0.2fns \n", 
+            num_searches, current_size, 
+            (double)min_time / num_searches, 
+            (double)max_time / num_searches, 
+            (double)total_time / num_iterations / num_searches);
     }
 } 
+
+int main() {
+    bench(1000, 10000, 2000000, 50);
+    return 0;
+}
