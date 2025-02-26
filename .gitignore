@@ -3,3 +3,4 @@
 **/assembly
 **/*.txt
 .vscode/
+.vscode/settings.json
