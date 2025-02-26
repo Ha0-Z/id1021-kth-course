@@ -1,0 +1,398 @@
+Trees
+in C
+Algorithms and data structures ID1021
+Johan Montelius
+Spring 2025
+Introduction
+Linked lists might be useful but the true value of linked data structures
+comes when we have more complex structures; the next step up from a linked
+list is a tree structure. It’s called a tree since the structure originates in a
+root that then divides into branches that are further divided into branches.
+A branch that does not divide further is terminated by a leaf. Although the
+structure is called a tree it is most often drawn with the root at the top and
+branches going down, don’t get confused.
+The trees that we will work on now are so called binary trees i.e. a branch
+always divides into two branches, if it does not end in a leaf. The operations
+that we will look at are: construction, adding and searching for an item.
+We will later look at more general tree structures but the principles are the
+same.
+A binary tree
+Let’s construct a binary tree where each node in the tree has: a value, a left
+branch and a right branch. The values could be anything but to be able to
+talk about sorted trees we require them to be comparable. In this example
+we will simply use integers as values.
+typedef struct node {
+int value;
+struct node *right;
+struct node *left;
+} node;
+typedef struct tree {
+ID1021 KTH 1 / 5
+node *root;
+} tree;
+You will need procedures to construct and free trees; a tree that is freed
+should of course free all nodes before it can free the data structure of the
+tree itself.
+tree *construct_tree {
+tree *tr = (tree*)malloc(...);
+tree->root = ...
+return tr;
+}
+void free_tree(tree *tr) {
+:
+:
+}
+Freeing the nodes could be done recursively.
+node *construct_node(int val) {
+node *nd = (node*)malloc(...);
+nd->value = ...;
+nd->left = ...;
+nd->right = ...;
+return nd;
+}
+void free_node(node *nd) {
+if (nd != NULL) {
+:
+:
+}
+}
+Now assume that that the tree is sorted so all nodes with values smaller
+than the root key are found in the left branch and the nodes with larger
+values in the right branch. The ordering is of course recursive so if we go
+down the left branch we will find smaller values to the left etc.
+Now implement two procedures:
+ void add(tree *tr, int value) : add a new node (leaf) to the tree
+that holds the value. Note that the tree should still be sorted. If the
+value exists, do nothing.
+ID1021 KTH 2 / 5
+ bool lookup(tree *tr, int value) : return true or false depending
+on if the value is found.
+When implementing add() one could chose to implement it recursively.
+The algorithm would look like follows, start in the root node:
+ If the value of the node is equal to the value, do nothing.
+ If the value of the node is greater than the value and
+– we have left branch - recursively add the key value to the left
+branch and return,
+– if not - create a new node and set it as the left branch and return.
+ Same thing for right branch.
+The lookup-procedure becomes very similar in its structure i.e. recursive
+traversal of the tree in order to find the value that we are looking for. Set up
+a benchmark and compare the execution time for a growing data set. Note
+that when you construct a binary tree you should not construct it using an
+ordered sequence of values - what would happen if you did? How does the
+lookup algorithm compares to the binary search algorithm that you used in
+one of the previous assignments?
+As an experiment, implement the add() operation but now without using
+a recursive strategy i.e. keep track of where you are in the tree as you go
+down a branch. Which approach is simpler to understand?
+Depth first traversal
+Very often you want to go through all items that you have in a tree and the
+question then arise in what order you should traverse the tree. If the tree
+like in our example is ordered with smaller values to the left, one natural
+order would be to traverse the items starting with the leftmost and then
+work your way towards the rightmost. This strategy is an example of a
+depth first strategy i.e. you go down as deep as possible before considering
+the alternatives.
+The order could be called in-order since we present all items in the left
+branch before presenting the item of the node itself. The item of the node
+is thus in-between the items of the left and the right branch. We could also
+present the items in a pre-order or post-order; the name describes where in
+the order we place the item of the node.
+A simple example of this could be to add a print procedure that prints
+all values in in-order.
+ID1021 KTH 3 / 5
+static void print(node *nd) {
+if (nd != NULL) {
+print(...);
+printf("%d ", nd->value);
+print(...);
+}
+}
+void print_tree(tree *tr) {
+if (tr->root != NULL)
+print(...);
+printf("\n");
+}
+An explicit stack
+When we implement the print method we make use of the implicit stack of
+the programming language. The programming stack was, as you probably
+realized, quite nice to have since it saved us from keeping track of what to
+do next. We could of course use an explicit stack and do the push and pop
+operations ourselves; but as you will see this is quite tricky.
+Use your dynamic stack implementation from one of the first assignments
+and adapt it to be a stack of nodes (in C: pointers to nodes). We now define
+an invariant that should always be true; an invariant is a property of a
+data structure or the property of the state of the computation at a particular
+point in the code. The invariant will help us understand what needs to be
+done in each step and goes as follows:
+The left sub-tree of a node that is pop:ed from the stack has
+been printed, the value of the node itself has not, nor the values
+of the right sub-tree.
+Before you start coding, take a white paper and make some drawings
+of what the stack and the tree might look like. Now think think about a
+scenario where you have pop:ed a reference to a node from the stack - what
+should you do? Since the left branch has been handled you should print
+the value of the node itself and then proceed down the right branch. Only
+when the right branch had been handled should you pop the next node and
+continue.
+When you look at the right branch it could of course be that it is empty
+( a null reference). Then your done, but if you have a node there you should
+move down the left branch and push the nodes on the way down. When you
+find the left-most node you’re in a position where the left branch had been
+handled i.e. it is as if you just pop:ed the node from the stack.
+ID1021 KTH 4 / 5
+void print(tree *tr) {
+stack *stk = create_stack();
+node *cur = tr->root;
+// move to the leftmost node
+while(cur != NULL) {
+// print value of node
+if( cur->right != NULL) {
+// move to the leftmost node, push nodes as you go
+} else {
+// pop a node from the stack
+}
+}
+}
+}
+Implement the print procedure and test it to see that it works. You
+might wonder if there is any reason to use an explicit stack instead of the
+stack of the programming language but it turns out that it could come in
+handy.In the print example there is no point in using an explicit stack but
+we could have a scenario where we want to save a state that describes the
+sequence of elements after a specific element; more on this on a lecture.
+ID1021 KTH 5 / 5
+
+\documentclass[a4paper,11pt]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage{pgfplots}
+\usepackage[outputdir=../]{minted}
+\usepackage{caption}
+
+\pgfplotsset{compat=1.18}
+
+\begin{document}
+
+\title{
+\textbf{Tree Performance Analysis}
+}
+\author{Hao Zhang}
+\date{Spring 2025}
+
+\maketitle
+
+\section*{Introduction}
+[Simple introduction to the topic and the purpose of the analysis]
+
+\section*{Method}
+The implementation utilized standard C libraries, including \texttt{stdlib.h}, \texttt{stdio.h}, \texttt{time.h}, and \texttt{limits.h}. Measurements were conducted on an Intel i7-13700K CPU with default frequency settings. The code was compiled using GCC without optimizations (\texttt{-O0}). Code from previous labs was used to conduct the benchmark. The benchmark methodology includes random generation of array elements, 50 iterations to obtain reliable average measurements, and time measurements in nanoseconds using \texttt{clock\_gettime()}.
+
+\section*{Hypothesis}
+In this report, 3 comparision will be peformed and 6 different algorithms, which is inplemented for performing add, lookup and print operation on a binary tree will be compared. The first comparison will be between the add operation implemented using a recursive strategy and a non-recursive strategy. The second comparison will be between the lookup operation implemented using a recursive strategy and a non-recursive strategy. The third comparison will be between the print operation implemented using the implicit stack and an explicit stack. The hypothesis is that the non-recursive strategy and the none recursive strategy will have similar performance in $O(\log(n))$. For add and lookup operations, the recursive strategy will have a time complexity of $O(\log n)$ in balanced trees, for look up operation, since we need to go through the whole tree no matter the stratege, there fore the time complexity will be $O(n)$.
+
+\section*{Code Review}
+In this paragraph, Since the code is too long, I will not show any pysical code code. Instead the code will be explained in detail. 
+
+To implement the binary tree, we first define a node structure that contains an integer value and two pointers to left and right nodes. We then define a tree structure that contains a pointer to the root node. The \texttt{construct\_tree} function allocates memory for the tree structure and initializes the root node to \texttt{NULL}. The \texttt{free\_tree} function recursively frees all nodes in the tree. The \texttt{construct\_node} function allocates memory for a new node and initializes its value and pointers. The \texttt{free\_node} function recursively frees all nodes in the tree.
+
+\subsection*{add-recursive}
+[Explain brithly about how to inplement add and add_recursive function from my code. Do explain in plain text without list or code block. Keep it short and simple. Follow the syntax of latex. ]
+
+\subsection*{add-iterate}
+[Follow same rule as add-recursive but explain about add_while function]
+
+\subsection*{lookup-recursive}
+[Follow same rule as add-recursive but explain about lookup_while function]
+
+
+\subsection*{lookup-iterate}
+[Follow same rule as add-recursive but explain about lookup_recursive function]
+
+
+\subsection*{print-recursive}
+[Follow same rule as add-recursive but explain about print_recursive_node function]
+
+
+\subsection*{print-iterate}
+[Follow same rule as add-recursive but explain about print_tree_explicit_stack function, since it involves stack, explain how stack is used in this function]
+
+\section*{Results and Analysis}
+The performance of print-iterate and print-recursive is adjustecd, because the printf function takes a lot of time and resources, and the output from the print will also block the terminal from show the run time of the program. Therefore the printf function are disabled during the benchmark. Therefore the practicale run time may differ from the theoretical run time.
+
+\subsection*{Add operation comparasion}
+
+\begin{figure}[h]
+    \centering
+    \begin{tikzpicture}
+    \begin{axis}[
+    xlabel={Tree Size},
+    ylabel={Average Time (ns)},
+    width=12cm,
+    height=8cm,
+    xmode=log,
+    ymode=log,
+    grid=both,
+    legend pos=north west,
+    log ticks with fixed point
+    ]
+    % add_while
+    \addplot[blue, mark=*] coordinates {
+        (1000, 112.99)
+        (2000, 125.89)
+        (4000, 68.02)
+        (8000, 72.87)
+        (16000, 85.72)
+        (32000, 91.44)
+        (64000, 103.69)
+        (128000, 119.42)
+    };
+    \addlegendentry{Add Iterate}
+
+    \addplot[color=green, domain=1000:128000, samples=20] {10 * log2(x) - 50};
+    \addlegendentry{$f(x) = 10 \cdot \log2(n) - 50$}
+
+    % add_recursive
+    \addplot[red, mark=square] coordinates {
+        (1000, 69.71)
+        (2000, 80.10)
+        (4000, 92.66)
+        (8000, 106.53)
+        (16000, 119.26)
+        (32000, 137.11)
+        (64000, 157.62)
+        (128000, 179.08)
+    };
+    \addlegendentry{Add Recursive}
+
+    \addplot[color=pink, domain=4000:128000, samples=20] {20 * log2(x) - 150};
+    \addlegendentry{$g(x) = 20 \cdot \log2(n) -150$}
+    
+    \end{axis}
+    \end{tikzpicture}
+    \caption{Log-log plot comparing add\_while vs add\_recursive performance (Avg/op)}
+    \label{fig:add_operations_comparison}
+\end{figure}
+From the figure \ref{fig:add_operations_comparison}, we can see that the add\_while and add\_recursive have similar performance in terms of time complexity. The time complexity of add operation is $O(\log n)$ in balanced trees as expected. But there is a constant factor difference between the two implementations. The add\_while implementation is slightly faster than the add\_recursive implementation. 
+This is because the recursive function call has some overhead in terms of memory allocation and function call. The while loop implementation is more efficient in this case.
+But in term of code readability, the recursive implementation is more intuitive and easier to understand. The while loop implementation is more complex and harder to follow.
+
+
+\subsection*{Lookup operation comparasion}
+\begin{figure}[h]
+    \centering
+    \begin{tikzpicture}
+    \begin{axis}[
+    xlabel={Tree Size},
+    ylabel={Average Time (ns)},
+    width=12cm,
+    height=8cm,
+    xmode=log,
+    ymode=log,
+    grid=both,
+    legend pos=north west,
+    log ticks with fixed point
+    ]
+    % lookup_while (first set)
+    \addplot[blue, mark=*] coordinates {
+        (1000, 51.08)
+        (2000, 55.25)
+        (4000, 66.69)
+        (8000, 76.28)
+        (16000, 84.30)
+        (32000, 96.48)
+        (64000, 109.16)
+        (128000, 128.18)
+    };
+    \addlegendentry{Lookup Iterate}
+
+    % \addplot[color=green, domain=1000:64000, samples=20] {y = 13.4345*x^0.1907627};
+    \addplot[color=green, domain=1000:128000, samples=100] {10 * log2(x) - 50};
+    \addlegendentry{$f(x) = 10 \cdot \log_2(n) - 50$}
+    
+    % lookup_recursive (second set)
+    \addplot[red, mark=square] coordinates {
+        (1000, 59.80)
+        (2000, 70.59)
+        (4000, 84.10)
+        (8000, 98.10)
+        (16000, 115.18)
+        (32000, 132.14)
+        (64000, 149.67)
+        (128000, 181.00)
+    };
+    \addlegendentry{Lookup Recursive}
+    
+    \addplot[color=orange, domain=1000:128000, samples=100] {14 * log2(x) - 80};
+    \addlegendentry{$g(x) = 14 \cdot \log_2(n) - 80$}
+    
+    \end{axis}
+    \end{tikzpicture}
+    \caption{Log-log plot comparing lookup\_while vs lookup\_recursive performance (Avg/op)}
+    \label{fig:lookup_operations_comparison}
+\end{figure}
+From the figure \ref{fig:lookup_operations_comparison}, we can see that the The lookup operation similar to the add operation, as I mentioned in add operation both of the algorithms have same time complexity in $O(\log(n))$ but the constant factor is different. The lookup\_while implementation is slightly faster than the lookup\_recursive implementation. 
+
+
+\subsection*{Print operation comparasion}
+
+\begin{figure}[h]
+    \centering
+    \begin{tikzpicture}
+    \begin{axis}[
+    xlabel={Tree Size},
+    ylabel={Average Time (µs)},
+    width=12cm,
+    height=8cm,
+    xmode=log,
+    ymode=log,
+    grid=both,
+    legend pos=north west,
+    log ticks with fixed point
+    ]
+    % print_tree
+    \addplot[blue, mark=*] coordinates {
+        (1000, 7.00)
+        (2000, 15.86)
+        (4000, 33.88)
+        (8000, 69.12)
+        (16000, 143.26)
+        (32000, 296.16)
+        (64000, 638.24)
+        (128000, 1545.12)
+    };
+    \addlegendentry{print\_tree\_recursive (Avg/op (µs))}
+
+    \addplot[color=green, domain=1000:128000, samples=20] {x/110};
+    \addlegendentry{$f(x) = n / 100$}
+    
+    % print_tree_explicit_stack
+    \addplot[red, mark=square] coordinates {
+        (1000, 14.28)
+        (2000, 30.54)
+        (4000, 66.38)
+        (8000, 128.88)
+        (16000, 276.02)
+        (32000, 552.60)
+        (64000, 1160.86)
+        (128000, 2556.90)
+    };
+    \addlegendentry{print\_tree\_stack (Avg/op (µs))}
+    
+    \addplot[color=black, domain=1000:128000, samples=20] {x/60 };
+    \addlegendentry{$g(x) = n/60$}
+
+    \end{axis}
+    \end{tikzpicture}
+    \caption{Log-log plot comparing print\_tree\_recursive vs print\_tree\_stack performance (Avg/op)}
+    \label{fig:print_operations_comparison}
+\end{figure}
+In the final part of the analysis, we compared the performance of the print operation using the resursive and the stack. Both of the inplementation have the same time complexity in $O(n)$ but the constant factor is different.
+But differ from the add and lookup operation, the print\_tree\recursive implementation is more efficient than the print\_tree\stack implementation. And the reason of it is simple, the number of operation for both of the inplementations stays same "n", but the recursive implementation require less code to inplement, to use the stack, we need to implement the stack and push and pop the nodes in the stack. Therefore the recursive implementation is more efficient than the stack implementation. But the stack implementation is more flexible and can be used in other cases where the recursive implementation is not possible when we face to more complex senario. 
+
+
+\section*{Conclusion}
+[Based on the instruction and the result analysis, write a conclusion about the performance of the tree operations.]
+
+
+\end{document}
