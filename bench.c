@@ -10,7 +10,18 @@ long nano_seconds(struct timespec *start_time, struct timespec *end_time) {
            (end_time->tv_sec - start_time->tv_sec) * 1000000000;
 }
 
-int *sorted(int size) {
+long micro_seconds(struct timespec *start, struct timespec *end) {
+    long sec_diff = end->tv_sec - start->tv_sec;
+    long nsec_diff = end->tv_nsec - start->tv_nsec;
+    
+    if (nsec_diff < 0) {
+        sec_diff--;
+        nsec_diff += 1000000000;
+    }
+    return (sec_diff * 1000000) + (nsec_diff / 1000);
+}
+
+int *sorted_array(int size) {
     int *numbers = (int*)malloc(size * sizeof(int));
     int current_value = 0;
     for (int i = 0; i < size; i++) {
@@ -79,8 +90,50 @@ void bench(int num_searches, int min_array_size, int max_array_size, int num_ite
             (double)total_time / num_iterations / num_searches);
     }
 } 
+void bench(int min_array_size, int max_array_size, int num_iterations) {
+    printf("Running appends on lists from size %d to %d\n", min_array_size, max_array_size);
+    printf("Array size   Min (µs)   Max (µs)   Avg (µs)\n");
+
+    for (int current_size = min_array_size; current_size <= max_array_size; current_size *= 2) {
+        long min_time = LONG_MAX;
+        long max_time = 0;
+        long total_time = 0;
+
+        for (int iteration = 0; iteration < num_iterations; iteration++) {
+            /// Setup
+
+
+            // Timing
+            struct timespec start, end;
+            clock_gettime(CLOCK_MONOTONIC, &start);
+            
+            /// RUN CODE TO BENCHMARK
+            linked_append(testlist, targetlist);
+            
+
+            clock_gettime(CLOCK_MONOTONIC, &end);
+            
+            // Cleanup
+            linked_free(testlist);
+            linked_free(targetlist);
+            
+
+            // Timing
+            long iter_time = micro_seconds(&start, &end);
+            min_time = (iter_time < min_time) ? iter_time : min_time;
+            max_time = (iter_time > max_time) ? iter_time : max_time;
+            total_time += iter_time;
+        }
+
+        printf("%-11d   %-8.0f   %-8.0f   %-8.0f\n", 
+              current_size, 
+              (double)min_time,
+              (double)max_time,
+              (double)total_time / num_iterations);
+    }
+}
 
 int main() {
-    bench(1000, 10000, 2000000, 50);
+    bench(1000, 128000, 50);  // Adjusted max to power-of-2 boundary
     return 0;
 }
