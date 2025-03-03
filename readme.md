@@ -20,3 +20,6 @@ use gcc -c to see the machine code
 mathematical notations
 
 gcc -O0 -o run code.c
+
+# Put out put into a file
+./hash > text.txt

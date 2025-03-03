@@ -1,0 +1,209 @@
+\documentclass[a4paper,11pt]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage{pgfplots}
+\usepackage[outputdir=../]{minted}
+\usepackage{caption}
+
+\pgfplotsset{compat=1.18}
+
+\begin{document}
+
+\title{
+\textbf{Heap Performance Analysis}
+}
+\author{Hao Zhang}
+\date{Spring 2025}
+
+\maketitle
+
+\section*{Introduction}
+[Explain short about this assignment and the data structure heap.]
+
+\section*{Method}
+The implementation utilized standard C libraries, including \texttt{stdlib.h}, \texttt{stdio.h}, \texttt{time.h}, and \texttt{limits.h}. Measurements were conducted on an Intel i7-13700K CPU with default frequency settings. The code was compiled using GCC without optimizations (\texttt{-O0}). Code from previous labs was used to conduct the benchmark. The benchmark methodology includes random generation of array elements, 50 iterations to obtain reliable average measurements, and time measurements in nanoseconds using \texttt{clock\_gettime()}.
+
+\section*{Hypothesis}
+There are sevral approach of Heap will be present in this report. Each one have different properties, this section I will do prediction on each type of implement of heap.
+
+
+This report presents a comparative study of six distinct algorithms implemented for binary tree operations: add, lookup, and print. For each operation, both recursive and iterative strategies are evaluated. The first comparison assesses the add operation using recursive and non-recursive approaches. The second comparison focuses on lookup operations, again comparing recursive and non-recursive implementations. Lastly, the print operation is examined using both implicit (recursive) and explicit (stack-based) stack strategies. It is hypothesized that for both add and lookup operations, the recursive and non-recursive strategies will exhibit similar performance characteristics, generally following a time complexity of $O(\log(n))$ in balanced binary trees. However, for the print operation, due to the necessity of visiting every node in the tree regardless of the strategy, the time complexity is expected to be $O(n)$.
+
+\section*{Code Review}
+In this section, we will describe the implementation of the binary tree and the algorithms used for add, lookup, and print operations. The binary tree is implemented using a node structure, which contains an integer value and pointers to the left and right child nodes. A tree structure is then defined, holding a pointer to the root node. Memory allocation for the tree and nodes is handled using \texttt{malloc}, and deallocation is performed using \texttt{free} functions, ensuring no memory leaks.
+
+\subsection*{add-recursive}
+The \texttt{add\_recursive} function is designed to insert a new node with a given value into the binary tree while maintaining its sorted property. Starting from a given node, the function compares the value to be inserted with the current node's value. If the value to be inserted is smaller, the function recursively calls itself on the left child. If the left child is null, a new node is created and inserted as the left child. Similarly, if the value is larger, the function operates on the right child. If the value is equal to the current node's value, no action is taken, preventing duplicate values in the tree. This recursive process ensures that the new node is placed in the correct position to maintain the binary search tree property.
+
+
+\section*{Results and Analysis}
+The performance evaluation of the implemented tree operations is presented in this section. It is important to note that for the print operation benchmarks, the actual printing of node values using \texttt{printf} was disabled. This is because \texttt{printf} operations can introduce significant overhead and terminal output delays that are not representative of the underlying tree traversal algorithm's performance. Thus, the measured times for print operations reflect the traversal time without the I/O overhead. Consequently, the practical runtime with print output enabled may differ from the benchmark results shown.
+
+\subsection*{Add operation comparasion}
+
+\begin{figure}[h]
+    \centering
+    \begin{tikzpicture}
+    \begin{axis}[
+    xlabel={Tree Size},
+    ylabel={Average Time (ns)},
+    width=12cm,
+    height=8cm,
+    xmode=log,
+    ymode=log,
+    grid=both,
+    legend pos=north west,
+    log ticks with fixed point
+    ]
+    % add_while
+    \addplot[blue, mark=*] coordinates {
+        (1000, 112.99)
+        (2000, 125.89)
+        (4000, 68.02)
+        (8000, 72.87)
+        (16000, 85.72)
+        (32000, 91.44)
+        (64000, 103.69)
+        (128000, 119.42)
+    };
+    \addlegendentry{Add Iterate}
+
+    \addplot[color=green, domain=1000:128000, samples=20] {10 * log2(x) - 50};
+    \addlegendentry{$f(x) = 10 \cdot \log2(n) - 50$}
+
+    % add_recursive
+    \addplot[red, mark=square] coordinates {
+        (1000, 69.71)
+        (2000, 80.10)
+        (4000, 92.66)
+        (8000, 106.53)
+        (16000, 119.26)
+        (32000, 137.11)
+        (64000, 157.62)
+        (128000, 179.08)
+    };
+    \addlegendentry{Add Recursive}
+
+    \addplot[color=pink, domain=4000:128000, samples=20] {20 * log2(x) - 150};
+    \addlegendentry{$g(x) = 20 \cdot \log2(n) -150$}
+
+    \end{axis}
+    \end{tikzpicture}
+    \caption{Log-log plot comparing add\_while vs add\_recursive performance (Avg/op)}
+    \label{fig:add_operations_comparison}
+\end{figure}
+Figure \ref{fig:add_operations_comparison} displays the performance comparison between the iterative (\texttt{add\_while}) and recursive (\texttt{add\_recursive}) implementations of the add operation. As predicted, both implementations exhibit a time complexity of $O(\log n)$, which is characteristic of balanced binary search tree insertion. This logarithmic scaling is evidenced by the near-linear trend in the log-log plot. However, a noticeable constant factor difference exists, with the iterative implementation consistently outperforming the recursive version. This performance gap can be attributed to the overhead associated with recursive function calls, including stack frame management and function call setup. The iterative approach, using a \texttt{while} loop, avoids this overhead, resulting in a slightly more efficient execution. Despite the performance difference, the recursive implementation is often considered more readable and intuitively aligned with the recursive nature of tree structures, while the iterative implementation, though slightly faster, is arguably more complex to understand and implement.
+
+\subsection*{Lookup operation comparasion}
+\begin{figure}[h]
+    \centering
+    \begin{tikzpicture}
+    \begin{axis}[
+    xlabel={Tree Size},
+    ylabel={Average Time (ns)},
+    width=12cm,
+    height=8cm,
+    xmode=log,
+    ymode=log,
+    grid=both,
+    legend pos=north west,
+    log ticks with fixed point
+    ]
+    % lookup_while (first set)
+    \addplot[blue, mark=*] coordinates {
+        (1000, 51.08)
+        (2000, 55.25)
+        (4000, 66.69)
+        (8000, 76.28)
+        (16000, 84.30)
+        (32000, 96.48)
+        (64000, 109.16)
+        (128000, 128.18)
+    };
+    \addlegendentry{Lookup Iterate}
+
+    % \addplot[color=green, domain=1000:64000, samples=20] {y = 13.4345*x^0.1907627};
+    \addplot[color=green, domain=1000:128000, samples=100] {10 * log2(x) - 50};
+    \addlegendentry{$f(x) = 10 \cdot \log_2(n) - 50$}
+
+    % lookup_recursive (second set)
+    \addplot[red, mark=square] coordinates {
+        (1000, 59.80)
+        (2000, 70.59)
+        (4000, 84.10)
+        (8000, 98.10)
+        (16000, 115.18)
+        (32000, 132.14)
+        (64000, 149.67)
+        (128000, 181.00)
+    };
+    \addlegendentry{Lookup Recursive}
+
+    \addplot[color=orange, domain=1000:128000, samples=100] {14 * log2(x) - 80};
+    \addlegendentry{$g(x) = 14 \cdot \log_2(n) - 80$}
+
+    \end{axis}
+    \end{tikzpicture}
+    \caption{Log-log plot comparing lookup\_while vs lookup\_recursive performance (Avg/op)}
+    \label{fig:lookup_operations_comparison}
+\end{figure}
+The performance comparison for the lookup operation, as depicted in Figure \ref{fig:lookup_operations_comparison}, mirrors the observations from the add operation analysis. Both the iterative (\texttt{lookup\_while}) and recursive (\texttt{lookup\_recursive}) implementations exhibit a time complexity of $O(\log n)$, consistent with efficient searching in a balanced binary search tree. The log-log plot again demonstrates a near-linear relationship, confirming the logarithmic scaling. Similar to the add operation, the iterative lookup implementation shows a slightly better performance compared to its recursive counterpart, indicated by a lower constant factor in execution time. This marginal performance advantage of the iterative approach is likely due to the avoidance of recursive function call overhead. As with the add operation, the recursive lookup implementation is generally perceived as more straightforward and aligned with the conceptual recursive nature of tree traversal, while the iterative version prioritizes slight performance gains at the cost of code complexity.
+
+\subsection*{Print operation comparasion}
+
+\begin{figure}[h]
+    \centering
+    \begin{tikzpicture}
+    \begin{axis}[
+    xlabel={Tree Size},
+    ylabel={Average Time (µs)},
+    width=12cm,
+    height=8cm,
+    xmode=log,
+    ymode=log,
+    grid=both,
+    legend pos=north west,
+    log ticks with fixed point
+    ]
+    % print_tree
+    \addplot[blue, mark=*] coordinates {
+        (1000, 7.00)
+        (2000, 15.86)
+        (4000, 33.88)
+        (8000, 69.12)
+        (16000, 143.26)
+        (32000, 296.16)
+        (64000, 638.24)
+        (128000, 1545.12)
+    };
+    \addlegendentry{print\_tree\_recursive (Avg/op (µs))}
+
+    \addplot[color=green, domain=1000:128000, samples=20] {x/110};
+    \addlegendentry{$f(x) = n / 100$}
+
+    % print_tree_explicit_stack
+    \addplot[red, mark=square] coordinates {
+        (1000, 14.28)
+        (2000, 30.54)
+        (4000, 66.38)
+        (8000, 128.88)
+        (16000, 276.02)
+        (32000, 552.60)
+        (64000, 1160.86)
+        (128000, 2556.90)
+    };
+    \addlegendentry{print\_tree\_stack (Avg/op (µs))}
+
+    \addplot[color=black, domain=1000:128000, samples=20] {x/60 };
+    \addlegendentry{$g(x) = n/60$}
+
+    \end{axis}
+    \end{tikzpicture}
+    \caption{Log-log plot comparing print\_tree\_recursive vs print\_tree\_stack performance (Avg/op)}
+    \label{fig:print_operations_comparison}
+\end{figure}
+Figure \ref{fig:print_operations_comparison} presents the performance comparison between the recursive (\texttt{print\_tree\_recursive}) and stack-based iterative (\texttt{print\_tree\_explicit\_stack}) implementations of the print operation. In contrast to the add and lookup operations, both print implementations exhibit a linear time complexity of $O(n)$, as anticipated. This linear scaling is evident in the log-log plot, indicating that the execution time grows proportionally with the tree size. However, contrary to the previous observations, the recursive print implementation demonstrates superior performance compared to the stack-based iterative version. The recursive approach is more efficient in this case because both implementations perform essentially the same number of operations (visiting each node once). However, the stack-based approach incurs additional overhead from explicit stack management operations, such as push and pop, and the necessity to manage the stack data structure. The recursive implementation leverages the implicit call stack, which is often optimized by compilers for recursive calls, leading to a more efficient execution for this particular in-order traversal scenario. While the recursive implementation is more performant and concise for in-order traversal, the stack-based approach offers greater flexibility. In more complex scenarios where maintaining traversal state or backtracking is required, an explicit stack might be necessary, even if it introduces a slight performance overhead compared to a purely recursive solution.
+
+\section*{Conclusion}
+This performance analysis of binary tree operations reveals valuable insights into the trade-offs between recursive and iterative implementations. For both add and lookup operations, while both recursive and iterative strategies exhibit the expected logarithmic time complexity $O(\log n)$ in balanced binary search trees, the iterative implementations demonstrated marginal performance advantages due to the avoidance of function call overhead inherent in recursion. Conversely, for the print operation, both recursive and stack-based iterative implementations showed linear time complexity $O(n)$, as predicted, but the recursive approach was found to be more efficient, primarily due to the overhead of explicit stack management in the iterative method. In summary, while iterative solutions may offer slight performance gains in certain tree operations by reducing function call overhead, recursive solutions often provide greater code clarity and can be more efficient for operations like tree traversal where the recursive structure naturally aligns with the algorithm. The choice between recursive and iterative implementations should therefore consider not only performance but also code readability, maintainability, and the specific requirements of the application.
+\end{document}
