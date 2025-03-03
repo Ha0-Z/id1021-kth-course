@@ -1,6 +1,11 @@
 {
     "files.associations": {
         "time.h": "c",
-        "stdio.h": "c"
+        "stdio.h": "c",
+        "stdlib.h": "c",
+        "limits.h": "c",
+        "type_traits": "c",
+        "stdbool.h": "c",
+        "typeinfo": "c"
     }
 }

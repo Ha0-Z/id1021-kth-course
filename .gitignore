@@ -1,6 +1,5 @@
 **/test
 **/run
 **/assembly
-**/*.txt
 .vscode/
 .vscode/settings.json

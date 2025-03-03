@@ -1,0 +1,25 @@
+
+Introduction
+
+Methods
+
+The implementation utilized several standard C libraries including stdlib.h,
+stdio.h, sys/time.h, time.h, limits.h, and stdbool.h. 
+All measurements were conducted on an Intel i7-13700K CPU at default frequency set-
+tings. 
+The code was compiled using GCC without optimization flags (-O0) to ensure consistent baseline performance measurements.
+Code from previous labs have been used to generat erandom array and do the benchmark.
+The benchmark methodology includes random generation of array elements.
+Multiple iterations to obtain reliable average measurements, and time measurements
+in nanoseconds using clock gettime().
+All sort procedures have been tested by a check sorted procedure which go through all elements in the array and check if the privoius item is larger than the element after.
+
+Hypothesis
+
+
+
+Code review
+
+Result
+
+Conclusion

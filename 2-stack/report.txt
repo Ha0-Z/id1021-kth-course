@@ -1,0 +1,128 @@
+
+
+Introduction:
+[Please fill in this part based on the instructions]
+
+Method:
+The following library have been used.
+ <stdlib.h>
+ <stdio.h>
+ <sys/time.h>
+ <time.h>
+ <limits.h>
+Code from the instruction and array.c have been used for finnish the report and track the run time.
+The run time is always the minimal value of 50 runs.
+Overleaf.com have been used as text editor and pdf exporter.
+Running on CPU 13700k with default frecuency.
+Using gcc to compile the original c program to machine code.
+Random number have been used to generate push in item.
+
+
+Static stack:
+
+Q&A to the instruction
+//  Does the pointer point to the location above the top of the stack or does it point to the top of the stack?
+// The pointer points at the top element of the stack. 
+
+//  What is the value of the pointer when the stack is empty?
+// If the stack is empty, then the pointer point towards -1, which do not exist.
+
+//  What should you do when a program tries to push a value on a full stack (stack overflow)?
+// If the program tries to push if the stack is full. Nothing happens and "Stack is full!" will be printed.
+
+//  What should happen when someone pops an item from an empty stack?
+// Because the program expect a value be returned, there fore a message "Cannot pop a empty stack!" and -1 will be returned.
+
+[Make here below a table]
+[opration of push and pop / total time / time per operation]
+initial stack length is: 1000 
+1000 14954.00 14.95 ns
+initial stack length is: 2000 
+2000 30251.00 15.13 ns
+initial stack length is: 4000 
+4000 59450.00 14.86 ns
+initial stack length is: 8000 
+8000 24743.00 3.09 ns
+initial stack length is: 16000 
+16000 49555.00 3.10 ns
+initial stack length is: 32000 
+32000 99571.00 3.11 ns
+initial stack length is: 64000 
+64000 198522.00 3.10 ns
+initial stack length is: 128000 
+128000 397101.00 3.10 ns
+
+The table abow [table number] show the time it takes to do the push and pop operations, it shows that when the set become larger and larger, minumal time approach to 3.1ns to perform one push and one pop in my testing enviroment.
+
+initial stack length is: 1000 
+1000 16428.00 16.43 ns
+initial stack length is: 2000 
+1000 14815.00 14.81 ns
+initial stack length is: 4000 
+1000 14628.00 14.63 ns
+initial stack length is: 8000 
+1000 14722.00 14.72 ns
+initial stack length is: 16000 
+1000 14606.00 14.61 ns
+initial stack length is: 32000 
+1000 14602.00 14.60 ns
+initial stack length is: 64000 
+1000 14520.00 14.52 ns
+initial stack length is: 128000 
+1000 11394.00 11.39 ns
+
+This table[table number] show with a fixed numbers of operations, that exicuting speed is not influenced by the size of the stack.
+
+Dynamic stack:
+
+The initial stack size has affect the arvage exicuting time. But it is only significant on very little and can be ignored.
+
+
+    Result:
+initial stack length is: 1 
+1000 22080.00 22.08 ns
+2000 42461.00 21.23 ns
+4000 84008.00 21.00 ns
+8000 102233.00 12.78 ns
+16000 79584.00 4.97 ns
+32000 151696.00 4.74 ns
+64000 348979.00 5.45 ns
+128000 728459.00 5.69 ns
+
+initial stack length is: 1000 
+1000 23143.00 23.14 ns
+2000 46980.00 23.49 ns
+4000 19461.00 4.87 ns
+8000 38567.00 4.82 ns
+16000 87132.00 5.45 ns
+32000 177387.00 5.54 ns
+64000 499506.00 7.80 ns
+128000 882620.00 6.90 ns
+
+As the table here below shows compare to static stack the operating time is bigger, which is reasonable because we need to migrate array to a longer array inorder to extend the size of the stack.
+If we obseerb the sequence carefully we can see on arvage the dynamic stack have dubble the speed to push and pop all element compare to the static, which is reasonable since the sum of all operation for migrating is SUM{1/2+1/4+1/8+1/16....} and the sum of this the infinite series quals to 1(size of the stack). Which make the operating time doubles.
+
+
+Stack become 10 times larger instead 2 times and become 1/10 when reach 1/20 when reach max: 
+initial stack length is: 1 
+1000 19784.00 19.78 ns
+2000 45607.00 22.80 ns
+4000 86529.00 21.63 ns
+8000 118004.00 14.75 ns
+16000 100601.00 6.29 ns
+32000 143982.00 4.50 ns
+64000 276141.00 4.31 ns
+128000 549217.00 4.29 ns
+
+After we make the tactic more aggresive by increase the array by 10 times when stack reach full and reduce by 10 times when stack reach 1/20. We get a slightly lesser number in general and it is because our test set stops at complete number.
+In practice, on arvage the sum will be simular to the original one and it equals to SUM{1/10+ 1/100 + 1/10000....}, and it still will have same arvage run time as the innitial attemption.
+
+Calculator:
+result is 42
+and it is equalent to 
+(4+(((2*3)+4)*4))-2
+
+Conclusion:
+The stack have O(1) complexity and it is a fast when face large scale of data input output.
+It is suitible for tasks which we know the length of the original data and we need to go through all of them.
+But when faced data with unknow length, or limited memory space, then the run speed will decrease by 50% on arvage, because the total operation will doubles.

@@ -1,0 +1,232 @@
+Queue
+Benchmarking queue operations from size 1000 to 128000
+Size    Min(ns) Max(ns) Avg(ns) Avg/op(ns)
+1000    490275.00       2410691.00      845578.50       845.58
+2000    1973706.00      2330072.00      2042423.10      1021.21
+4000    7877749.00      9944860.00      8174963.84      2043.74
+8000    30707860.00     34803718.00     31376737.80     3922.09
+16000   122342771.00    132523957.00    123654038.46    7728.38
+
+
+Inproved Queue
+Benchmarking queue operations from size 1000 to 128000
+Size    Min(ns) Max(ns) Avg(ns) Avg/op(ns)
+1000    54242.00        102557.00       58754.58        58.75
+2000    22608.00        157661.00       40420.70        20.21
+4000    44924.00        70794.00        47623.82        11.91
+8000    89616.00        155092.00       95123.10        11.89
+16000   182244.00       273461.00       202080.76       12.63
+32000   502765.00       582417.00       517863.22       16.18
+64000   791989.00       1170500.00      1043340.28      16.30
+128000  1589098.00      2197813.00      2075889.80      16.22
+
+
+
+Wrap
+Benchmarking queue operations from size 1000 to 128000
+Size    Min(ns) Max(ns) Avg(ns) Avg/op(ns)
+1000    39118.00        49851.00        39590.98        39.59
+2000    20370.00        88761.00        23059.82        11.53
+4000    40572.00        48460.00        41135.00        10.28
+8000    63531.00        125067.00       86194.74        10.77
+16000   135278.00       326902.00       159378.14       9.96
+32000   270832.00       313605.00       278273.80       8.70
+64000   566030.00       630081.00       580054.96       9.06
+128000  1138719.00      1258099.00      1181108.62      9.23
+
+
+
+linked Array
+Benchmarking queue operations from size 1000 to 128000
+Size    Min(ns) Max(ns) Avg(ns) Avg/op(ns)
+1000    16401.00        37022.00        17702.36        17.70
+2000    32321.00        120559.00       35752.18        17.88
+4000    37550.00        83406.00        48814.76        12.20
+8000    26963.00        88982.00        42503.52        5.31
+16000   53473.00        71985.00        56398.72        3.52
+32000   122867.00       144343.00       128337.38       4.01
+64000   254363.00       284475.00       262938.22       4.11
+128000  509762.00       546897.00       523871.42       4.09
+
+
+
+
+Queue
+\begin{table}[h]
+    \centering
+    \begin{tabular}{|l|c|c|c|c|}
+    \hline
+    \textbf{Size} & \textbf{Min (µs)} & \textbf{Max (µs)} & \textbf{Avg (µs)} & \textbf{Avg/op (ns)} \\
+    \hline
+    1000 & 490.28 & 2410.69 & 845.58 & 845.58 \\
+    2000 & 1973.71 & 2330.07 & 2042.42 & 1021.21 \\
+    4000 & 7877.75 & 9944.86 & 8174.96 & 2043.74 \\
+    8000 & 30707.86 & 34803.72 & 31376.74 & 3922.09 \\
+    16000 & 122342.77 & 132523.96 & 123654.04 & 7728.38 \\
+    32000 & 485247.17 & 496878.95 & 487832.40 & 15244.76 \\
+    64000 & 1947782.08 & 1995377.47 & 1952189.52 & 30502.96 \\
+    \hline
+    \end{tabular}
+    \caption{Performance of Normal Queue implementation}
+    \label{tab:queue_perf}
+\end{table}
+
+Improved Queue
+\begin{table}[h]
+    \centering
+    \begin{tabular}{|l|c|c|c|c|}
+    \hline
+    \textbf{Size} & \textbf{Min (µs)} & \textbf{Max (µs)} & \textbf{Avg (µs)} & \textbf{Avg/op (ns)} \\
+    \hline
+    1000 & 54.24 & 102.56 & 58.75 & 58.75 \\
+    2000 & 22.61 & 157.66 & 40.42 & 20.21 \\
+    4000 & 44.92 & 70.79 & 47.62 & 11.91 \\
+    8000 & 89.62 & 155.09 & 95.12 & 11.89 \\
+    16000 & 182.24 & 273.46 & 202.08 & 12.63 \\
+    32000 & 502.77 & 582.42 & 517.86 & 16.18 \\
+    64000 & 791.99 & 1170.50 & 1043.34 & 16.30 \\
+    128000 & 1589.10 & 2197.81 & 2075.89 & 16.22 \\
+    \hline
+    \end{tabular}
+    \caption{Performance of Improved Queue implementation}
+    \label{tab:improved_queue_perf}
+\end{table}
+
+Wrap
+\begin{table}[h]
+    \centering
+    \begin{tabular}{|l|c|c|c|c|}
+    \hline
+    \textbf{Size} & \textbf{Min (µs)} & \textbf{Max (µs)} & \textbf{Avg (µs)} & \textbf{Avg/op (ns)} \\
+    \hline
+    1000 & 39.12 & 49.85 & 39.59 & 39.59 \\
+    2000 & 20.37 & 88.76 & 23.06 & 11.53 \\
+    4000 & 40.57 & 48.46 & 41.14 & 10.28 \\
+    8000 & 63.53 & 125.07 & 86.19 & 10.77 \\
+    16000 & 135.28 & 326.90 & 159.38 & 9.96 \\
+    32000 & 270.83 & 313.61 & 278.27 & 8.70 \\
+    64000 & 566.03 & 630.08 & 580.05 & 9.06 \\
+    128000 & 1138.72 & 1258.10 & 1181.11 & 9.23 \\
+    \hline
+    \end{tabular}
+    \caption{Performance of Wrap implementation}
+    \label{tab:wrap_perf}
+\end{table}
+
+Linked Array
+\begin{table}[h]
+    \centering
+    \begin{tabular}{|l|c|c|c|c|}
+    \hline
+    \textbf{Size} & \textbf{Min (µs)} & \textbf{Max (µs)} & \textbf{Avg (µs)} & \textbf{Avg/op (ns)} \\
+    \hline
+    1000 & 16.40 & 37.02 & 17.70 & 17.70 \\
+    2000 & 32.32 & 120.56 & 35.75 & 17.88 \\
+    4000 & 37.55 & 83.41 & 48.81 & 12.20 \\
+    8000 & 26.96 & 88.98 & 42.50 & 5.31 \\
+    16000 & 53.47 & 71.99 & 56.40 & 3.52 \\
+    32000 & 122.87 & 144.34 & 128.34 & 4.01 \\
+    64000 & 254.36 & 284.48 & 262.94 & 4.11 \\
+    128000 & 509.76 & 546.90 & 523.87 & 4.09 \\
+    \hline
+    \end{tabular}
+    \caption{Performance of Linked Array implementation}
+    \label{tab:linked_array_perf}
+\end{table}
+
+% First figure comparing Queue vs Improved Queue
+\begin{figure}[h]
+    \centering
+    \begin{tikzpicture}
+    \begin{axis}[
+    xlabel={List Size},
+    ylabel={Time (µs)},
+    width=12cm,
+    height=8cm,
+    xmode=log,
+    ymode=log,
+    grid=both,
+    legend pos=north west,
+    log ticks with fixed point
+    ]
+    % Normal Queue
+    \addplot[blue, mark=*] coordinates {
+    (1000, 845.58)
+    (2000, 2042.42)
+    (4000, 8174.96)
+    (8000, 31376.74)
+    (16000, 123654.04)
+    (32000, 487832.40)
+    (64000, 1952189.52)
+    };
+    \addlegendentry{Normal Queue}
+
+    % Improved Queue
+    \addplot[red, mark=square] coordinates {
+    (1000, 58.75)
+    (2000, 40.42)
+    (4000, 47.62)
+    (8000, 95.12)
+    (16000, 202.08)
+    (32000, 517.86)
+    (64000, 1043.34)
+    (128000, 2075.89)
+    };
+    \addlegendentry{Improved Queue}
+    
+    \end{axis}
+    \end{tikzpicture}
+    \caption{Log-log plot comparing Normal Queue vs Improved Queue performance}
+    \label{fig:queue_comparison}
+\end{figure}
+
+% Second figure comparing Wrap vs Linked Array
+\begin{figure}[h]
+    \centering
+    \begin{tikzpicture}
+    \begin{axis}[
+    xlabel={List Size},
+    ylabel={Time (µs)},
+    width=12cm,
+    height=8cm,
+    xmode=log,
+    ymode=log,
+    grid=both,
+    legend pos=north west,
+    log ticks with fixed point
+    ]
+    % Wrap
+    \addplot[green, mark=triangle] coordinates {
+    (1000, 39.59)
+    (2000, 23.06)
+    (4000, 41.14)
+    (8000, 86.19)
+    (16000, 159.38)
+    (32000, 278.27)
+    (64000, 580.05)
+    (128000, 1181.11)
+    };
+    \addlegendentry{Wrap}
+
+    % Linked Array
+    \addplot[purple, mark=diamond] coordinates {
+    (1000, 17.70)
+    (2000, 35.75)
+    (4000, 48.81)
+    (8000, 42.50)
+    (16000, 56.40)
+    (32000, 128.34)
+    (64000, 262.94)
+    (128000, 523.87)
+    };
+    \addlegendentry{Linked Array}
+    
+    \end{axis}
+    \end{tikzpicture}
+    \caption{Log-log plot comparing Wrap vs Linked Array performance}
+    \label{fig:wrap_linked_comparison}
+\end{figure}
+
+
+
+

@@ -1,0 +1,139 @@
+
+Introduction
+
+Methods
+The implementation utilized several standard C libraries including stdlib.h,
+stdio.h, sys/time.h, time.h, limits.h, and stdbool.h. 
+All measurements were conducted on an Intel i7-13700K CPU at default frequency set-tings. 
+The code was compiled using GCC without optimization flags (-O0) to ensure consistent baseline performance measurements.
+Code from previous labs have been used to generat erandom array and do the benchmark.
+The benchmark methodology includes random generation of array elements.
+Multiple iterations to obtain reliable average measurements, and time measurements in nanoseconds using clock gettime().
+All sort procedures have been tested by a check sorted procedure which go through all elements in the array and check if the privoius item is larger than the element after.
+The result of arvage, maximum, minimum run time come from 50 iterations. 
+
+
+Hypothesis
+
+
+Code review
+
+void merge_sort recursive(int *org, int *temp, int low, int mid, int high) {
+// copy all items from low to high from org to temp
+    for (int i = low; i <= high; i++) {
+        temp[i] = org[i];
+    }
+    // let's do the merging
+    int i = low; // the index in the first part
+    int j = mid+1; // the index in the second part
+    int index = low;
+
+    // Repeating copy the lowest element between low part and high part to the original array
+    while (i <= mid && j <= high)
+    {
+        if (temp[i] <= temp[j])
+        {
+            org[index] = temp[i];
+            i++;
+        } else {
+            org[index] = temp[j];
+            j++;
+        }
+        index++;
+    }
+    
+    // Copy if there is ramain array elements
+    while (i <= mid) {
+        org[index] = temp[i];
+        i++;
+        index++;
+    }
+
+    // Copy if there is ramain array elements
+    while (j <= high) {
+        org[index] = temp[j];
+        j++;
+        index++;
+    }
+}
+
+
+void quick_sort_recursive(int *array, int low, int high) {
+    if (low < high)
+    {
+        int pivot = array[high];  // Choose the last element as the pivot
+        int i = low - 1;       // Index of the smaller element
+
+        for (int j = low; j < high; j++) {
+            // If the current element is smaller than or equal to the pivot
+            if (array[j] <= pivot) {
+                i++;  // Increment the index of the smaller element
+                swap(array,i, j);
+            }
+        }
+        // Place the pivot in the correct position
+        swap(array, i+1, high);
+        pivot = i + 1;
+
+        // Recursively sort the left and right subarrays
+        quick_sort_recursive(array, low, pivot - 1);
+        quick_sort_recursive(array, pivot + 1, high);
+
+    }
+    
+}
+
+
+
+
+Result
+Selection Sort:
+Running selection sort on arrays from size 100 to 20000
+Loops   Array size   TimeMin   TimeMax   Average
+1   100   27851.0ns   73584.0ns   34143.3ns 
+1   200   89981.0ns   134096.0ns   102296.8ns 
+1   400   135927.0ns   414665.0ns   239404.8ns 
+1   800   234612.0ns   1680473.0ns   334802.2ns 
+1   1600   840133.0ns   1269950.0ns   932083.8ns 
+1   3200   3173034.0ns   3747077.0ns   3308061.2ns 
+1   6400   12448157.0ns   13595123.0ns   12708034.7ns 
+1   12800   49450591.0ns   51503983.0ns   50109235.4ns 
+
+Insertion Sort:
+Running insertion sort on arrays from size 100 to 20000
+Loops   Array size   TimeMin   TimeMax   Average
+1   100   18219.0ns   64590.0ns   23086.6ns 
+1   200   75562.0ns   135626.0ns   98203.3ns 
+1   400   73639.0ns   494737.0ns   116270.1ns 
+1   800   297041.0ns   442510.0ns   333756.4ns 
+1   1600   1208113.0ns   1513189.0ns   1306918.7ns 
+1   3200   4865649.0ns   6138362.0ns   5165296.1ns 
+1   6400   19563555.0ns   22604893.0ns   20863905.3ns 
+1   12800   79546916.0ns   87195010.0ns   82995614.2ns 
+
+Merge Sort:
+Running merge sort on arrays from size 100 to 20000
+Loops   Array size   TimeMin   TimeMax   Average
+1   100   18016.0ns   27351.0ns   19286.0ns 
+1   200   40606.0ns   57643.0ns   42723.6ns 
+1   400   24518.0ns   99227.0ns   44800.3ns 
+1   800   54842.0ns   58353.0ns   56467.2ns 
+1   1600   96967.0ns   243956.0ns   149292.0ns 
+1   3200   202984.0ns   406127.0ns   265340.3ns 
+1   6400   433439.0ns   781280.0ns   504132.1ns 
+1   12800   937828.0ns   1431238.0ns   1065033.7ns
+
+Quick Sort:
+Running quick sort on arrays from size 100 to 20000
+Loops   Array size   TimeMin   TimeMax   Average
+1   100   3449.0ns   7060.0ns   4015.2ns 
+1   200   7871.0ns   11247.0ns   9012.6ns 
+1   400   19376.0ns   23692.0ns   20577.1ns 
+1   800   31319.0ns   51144.0ns   35860.5ns 
+1   1600   77609.0ns   275012.0ns   179959.7ns 
+1   3200   155407.0ns   283694.0ns   179051.9ns 
+1   6400   345073.0ns   538108.0ns   374229.6ns 
+1   12800   726346.0ns   1014325.0ns   783992.2ns 
+
+
+Conclusion

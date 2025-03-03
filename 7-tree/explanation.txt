@@ -1,0 +1,98 @@
+
+Since if we add a sorted array, the tree only will have one branch to ward right side.
+
+Hi, I want you help me process some data. 
+I have some raw data and want to show them as figures in latex.
+Could you help me with do the process?
+Here is some code for you use as an example.
+And here is the raw data, adjust the addplot coordinates for it to fit this data instead, tips I want to the x axis become tree size and y axis becom eaverage all other data are nott inportant:
+
+--- Benchmarking Add Operations ---
+Benchmarking 'add_while' add operation on trees from size 1000 to 128000
+Loops   Tree size   TimeMin (ns)   TimeMax (ns)   Average (ns)
+50   1000   60.77   270.51   112.99 
+50   2000   54.39   242.59   125.89 
+50   4000   60.29   80.26   68.02 
+50   8000   64.87   91.47   72.87 
+50   16000   74.10   109.33   85.72 
+50   32000   83.66   104.72   91.44 
+50   64000   95.66   113.47   103.69 
+50   128000   114.57   132.70   119.42 
+Benchmarking 'add_recursive' add operation on trees from size 1000 to 128000
+Loops   Tree size   TimeMin (ns)   TimeMax (ns)   Average (ns)
+50   1000   63.78   106.96   69.71 
+50   2000   73.13   92.21   80.10 
+50   4000   87.69   104.42   92.66 
+50   8000   99.43   121.17   106.53 
+50   16000   112.08   131.97   119.26 
+50   32000   129.79   149.60   137.11 
+50   64000   149.40   173.83   157.62 
+50   128000   173.94   189.57   179.08 
+
+--- Benchmarking Lookup Operations ---
+Benchmarking 'lookup_while' lookup operation (1000 searches per iteration) on trees from size 1000 to 128000
+Loops   Tree size   TimeMin (ns)   TimeMax (ns)   Average (ns)
+50   1000   41.31   61.84   51.08 
+50   2000   48.31   70.37   55.25 
+50   4000   56.34   80.53   66.69 
+50   8000   64.94   86.71   76.28 
+50   16000   72.58   97.43   84.30 
+50   32000   83.45   113.32   96.48 
+50   64000   98.13   123.73   109.16 
+50   128000   119.56   145.21   128.18 
+Benchmarking 'lookup_while' lookup operation (1000 searches per iteration) on trees from size 1000 to 128000
+Loops   Tree size   TimeMin (ns)   TimeMax (ns)   Average (ns)
+50   1000   54.66   71.19   59.80 
+50   2000   65.59   77.21   70.59 
+50   4000   77.65   106.46   84.10 
+50   8000   89.67   135.65   98.10 
+50   16000   107.11   129.49   115.18 
+50   32000   120.62   147.15   132.14 
+50   64000   139.23   162.90   149.67 
+50   128000   170.72   208.55   181.00 
+
+--- Benchmarking Print Operations ---
+Benchmarking 'print_tree' print operation on trees from size 1000 to 128000
+Loops   Tree size   TimeMin (µs)   TimeMax (µs)   Average (µs)
+50   1000   7.00   7.00   7.00 
+50   2000   15.00   18.00   15.86 
+50   4000   33.00   35.00   33.88 
+50   8000   67.00   71.00   69.12 
+50   16000   140.00   167.00   143.26 
+50   32000   288.00   320.00   296.16 
+50   64000   621.00   685.00   638.24 
+50   128000   1498.00   1668.00   1545.12 
+Benchmarking 'print_tree_explicit_stack' print operation on trees from size 1000 to 128000
+Loops   Tree size   TimeMin (µs)   TimeMax (µs)   Average (µs)
+50   1000   13.00   19.00   14.28 
+50   2000   28.00   47.00   30.54 
+50   4000   59.00   125.00   66.38 
+50   8000   118.00   205.00   128.88 
+50   16000   252.00   408.00   276.02 
+50   32000   497.00   802.00   552.60 
+50   64000   1061.00   1408.00   1160.86 
+50   128000   2444.00   2662.00   2556.90 
+
+
+
+--- Benchmarking BFS Traversal ---
+Tree size   TimeMin (µs)   TimeMax (µs)   Average (µs)
+1000         15.00          90.00          34.52       
+2000         31.00          35.00          32.12       
+4000         64.00          71.00          67.02       
+8000         133.00         147.00         139.40      
+16000        267.00         300.00         280.44      
+32000        549.00         652.00         568.74      
+64000        1106.00        1205.00        1161.12     
+128000       2333.00        2634.00        2477.00     
+
+--- Benchmarking Enqueue/Dequeue Operations ---
+Queue size   TimeMin (µs)   TimeMax (µs)   Average (µs)
+1000         11.00          15.00          11.44       
+2000         22.00          26.00          23.54       
+4000         45.00          58.00          48.76       
+8000         92.00          110.00         98.52       
+16000        197.00         298.00         254.48      
+32000        490.00         574.00         508.36      
+64000        1032.00        1218.00        1058.22     
+128000       2058.00        2648.00        2144.44     
