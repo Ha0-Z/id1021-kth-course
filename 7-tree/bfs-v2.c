@@ -207,9 +207,8 @@ int next(sequence *seq) {
     if (seq == NULL || is_empty(seq->q)) {
         return INT_MIN;  // Signal end of sequence
     }
-    
+    int value = seq->q->first->data;
     cell *current = dequeue(seq->q);
-    int value = current->data;
     
     if (current->node->left != NULL) {
         enqueue(seq->q, current->node->left);
@@ -299,6 +298,21 @@ int count_nodes(node *nd) {
     }
     return 1 + count_nodes(nd->left) + count_nodes(nd->right);
 }
+
+void read_tree_bfs_lazy(sequence *seq) {
+    if (seq == NULL || is_empty(seq->q)) {
+        return;
+    }
+
+    // Print the BFS sequence lazily
+    printf("Lazy BFS Traversal: ");
+    while (has_next(seq)) {
+        int value = next(seq);
+        printf("%d ", value);
+    }
+    printf("\n");
+}
+
 
 void bench_bfs(int min_tree_size, int max_tree_size, int num_iterations) {
     printf("--- Benchmarking BFS Traversal ---\n");
@@ -408,11 +422,84 @@ void bench_enqueue_dequeue(int min_queue_size, int max_queue_size, int num_itera
 }
 
 
+static void print_recursive_node(node *nd) {
+    if (nd != NULL) {
+        print_recursive_node(nd->left); 
+        printf("%d ", nd->value);
+        print_recursive_node(nd->right); 
+    }
+}
+
+void print_tree(tree *tr) {
+    if (tr->root != NULL) {
+        print_recursive_node(tr->root);
+    }
+    printf("\n");
+}
+
+void print_sequence_data(sequence *seq) {
+    if (seq == NULL) return;
+    printf("Sequence data: ");
+    while (has_next(seq)) {
+        int value = next(seq);
+        if (value != INT_MIN) {
+            printf("%d ", value);
+        }
+    }
+    printf("\n");
+}
+
 int main() {
     srand(time(NULL)); // Seed random number generator
 
-    bench_bfs(1000, 128000, 50); // Benchmark BFS traversal
-    bench_enqueue_dequeue(1000, 128000, 50); // Benchmark enqueue and dequeue
+    // bench_bfs(1000, 128000, 50); // Benchmark BFS traversal
+    // bench_enqueue_dequeue(1000, 128000, 50); // Benchmark enqueue and dequeue
 
+
+    // Create a test tree (for example, of size 7)
+    tree *test_tree = create_test_tree(15);
+
+    // Create a lazy sequence for BFS traversal
+    sequence *seq = create_sequence(test_tree);
+
+
+    printf("Initial tree data:\n");
+    print_tree(test_tree);
+    printf("Initial BFS sequence data:\n");
+    print_sequence_data(seq);
+
+
+    // Extract first 3 values lazily
+    printf("\nExtracting first 3 values lazily:\n");
+    for (int i = 0; i < 3; i++) {
+        int value = next(seq);
+        printf("Extracted: %d\n", value);
+    }
+
+    // Take a break and modify the tree
+    printf("\nTaking a break and modifying the tree...\n");
+
+    // Add nodes and remove nodes during break
+    add_while(test_tree, 10);
+    add_while(test_tree, 15);
+    add_while(test_tree, 30);
+    node *left_node_root = test_tree->root->left;
+    free_node(left_node_root);
+    test_tree->root->left = NULL;
+
+    // Print the data again after modification
+    printf("\nData after modification:\n");
+    print_tree(test_tree);
+    printf("Sequence data after break:\n");
+    free_sequence(seq);
+    seq = create_sequence(test_tree);
+    print_sequence_data(seq);
+
+    // Extract more values
+    printf("\nExtracting more values after the break:\n");
+    for (int i = 0; i < 2; i++) {
+        int value = next(seq);
+        printf("Extracted: %d\n", value);
+    }
     return 0;
 }
