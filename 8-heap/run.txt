@@ -1,0 +1,64 @@
+Heap add O(1) remove O(n):
+Benchmarking Add and remove Operations
+Array size      Add(min,ms)     Add(avg/ms)      Rmv(min,ms)     Rmv(avg/ms)     
+1000              1             1            1             1       
+2000              2             3            2             3       
+4000              5             6            5             6       
+8000              11            12           11            12      
+16000             22            23           22            23      
+
+Heap add O(1) remove O(1):
+Benchmarking Add and remove Operations
+Array size      Add(min,µs)     Add(avg/µs)      Rmv(min,µs)     Rmv(avg/µs)     
+1000              232           407          232           407     
+2000              954           1043         954           1043    
+4000              3790          3911         3790          3911    
+8000              15114         15486        15114         15486   
+16000             60719         62058        60719         62058   
+
+heap tree:
+Benchmarking Add and remove Operations
+Array size      Add(min,µs)     Add(avg/µs)      Rmv(min,µs)     Rmv(avg/µs)     
+1000              22            49           22            49      
+2000              24            30           24            30      
+4000              48            54           48            54      
+8000              97            107          97            107     
+16000             193           218          193           218     
+32000             386           427          386           427     
+64000             785           854          785           854     
+128000            1564          1703         1564          1703   
+
+
+Heap 
+Benchmarking Add and remove Operations
+Array size      Add(min,µs)     Add(avg/µs)      Rmv(min,µs)     Rmv(avg/µs)     
+1000              13            37           71            203     
+2000              27            50           163           285     
+4000              54            61           355           368     
+8000              110           121          781           806     
+16000             215           238          1662          1770    
+32000             465           489          3652          3787    
+64000             951           990          8006          8164    
+128000            1928          2009         17348         17951  
+
+
+Heap array:
+Benchmarking Add and Remove Operations
+Array size      Add(min,µs)     Add(avg/µs)      Rmv(min,µs)     Rmv(avg/µs)     
+1000              48            66           183           203     
+2000              37            97           171           422     
+4000              72            76           365           398     
+8000              149           154          822           868     
+16000             292           319          1792          1881    
+32000             633           661          4086          4180    
+64000             1236          1334         8431          8706    
+128000            2500          2758         18142         19199   
+
+Benchmarking Push vs Remove-Add with 1023 elements
+Performing 1000 operations
+Push operation:
+  - Total time: 80 µs
+  - Average depth: 5.68 levels
+Remove-Add operation:
+  - Total time: 96 µs
+Performance ratio (Push:Remove-Add): 1:1.20
