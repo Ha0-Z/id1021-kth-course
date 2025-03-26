@@ -1,0 +1,167 @@
+\documentclass[a4paper,11pt]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage{pgfplots}
+\usepackage[outputdir=../]{minted}
+
+\begin{document}
+
+\title{
+    \textbf{Graph}
+}
+\author{Hao Zhang}
+\date{Spring 2025}
+
+\maketitle
+
+\section*{Introduction}
+This report investigates the use of graph data structures to represent and navigate the Swedish railroad network. The primary goal is to find the shortest path (in terms of travel time) between two given cities. The report details the implementation of a graph where cities are represented as nodes and train connections as weighted, bidirectional edges. Two different depth-first search strategies for finding the shortest path are examined: a basic depth-first search with a depth limit and an improved version incorporating loop detection. The performance of these strategies is benchmarked and analyzed.
+
+\section*{Method}
+The implementation was done in C, utilizing standard libraries such as \texttt{stdlib.h}, \texttt{stdio.h}, \texttt{string.h}, \texttt{time.h}, and \texttt{sys/time.h}. Benchmarking was conducted on an Intel i7-13700K CPU with default frequency settings. The code was compiled using GCC without optimizations (\texttt{-O0}). Time measurements were taken using \texttt{clock\_gettime()} with \texttt{CLOCK\_MONOTONIC} to ensure accurate timing. The benchmark involved running the shortest path search algorithms for various pairs of Swedish cities and recording the execution time.
+
+\section*{Implementation}
+
+\subsection*{Data Structures}
+The graph is implemented using an adjacency list representation. Two main structures are defined:
+
+\begin{itemize}
+    \item \texttt{connection}: Represents a train connection between two cities. It stores a pointer to the destination city (\texttt{destination}), the travel time (\texttt{distance}), and a pointer to the next connection in the list (\texttt{next}).
+    \item \texttt{city}: Represents a city in the network. It stores the city's name (\texttt{name}) and a pointer to the first connection in its adjacency list (\texttt{connections}).
+\end{itemize}
+
+\subsection*{Map Representation using a Hash Table}
+The train network (map) is represented using a hash table for efficient lookup of city structures by their names. The \texttt{map} structure contains:
+
+\begin{itemize}
+    \item \texttt{buckets}: A dynamically allocated array of pointers to \texttt{city\_node} structures. Each index in this array represents a bucket in the hash table.
+    \item \texttt{city\_count}: An integer to keep track of the number of cities in the map.
+\end{itemize}
+
+Collisions in the hash table are handled using separate chaining (buckets). Each bucket is the head of a linked list of \texttt{city\_node} structures. Each \texttt{city\_node} contains a pointer to a \texttt{city} structure and a pointer to the next node in the bucket's list.
+
+The hash function used is provided in the assignment instructions:
+\begin{minted}{c}
+int hash(char *name, int mod) {
+    int h = 0;
+    int i = 0;
+    unsigned char c = 0;
+    while ((c = name[i]) != 0) {
+        h = (h * 31 + c) % mod;
+        i++;
+    }
+    return h;
+}
+\end{minted}
+The \texttt{MOD} value is set to 101, a prime number chosen to help distribute the city names across the hash table.
+
+\textbf{Pros and Cons of Separate Chaining:}
+\begin{itemize}
+    \item \textbf{Pros:} Simple to implement, handles collisions effectively even with a high load factor, and the table size does not need to be as large as with open addressing.
+    \item \textbf{Cons:} Performance can degrade if many keys hash to the same bucket (resulting in long linked lists to traverse), and requires extra memory for the linked list nodes.
+\end{itemize}
+
+Given the 52 cities in the dataset and a hash table size of 101, it is likely that collisions will occur. However, with a relatively small number of cities compared to the table size, the length of the linked lists in each bucket should remain manageable, ensuring reasonably fast lookups. To determine the exact number of collisions, one would need to analyze the hash values generated for each city name.
+
+\subsection*{connect}
+The \texttt{connect} function takes two city pointers (\texttt{src} and \texttt{dst}) and the travel time (\texttt{distance}) as input. It creates new \texttt{connection} structures to represent the bidirectional connection between the two cities and adds them to the beginning of each city's adjacency list.
+
+\subsection*{lookup}
+The \texttt{lookup} function takes the map and a city name as input. It calculates the hash value for the city name and searches for the city in the corresponding bucket of the hash table. If the city is found, a pointer to its \texttt{city} structure is returned. If the city is not found, a new \texttt{city} structure is created, its name is set, and it is added to the hash table in the appropriate bucket.
+
+\subsection*{graph}
+The \texttt{graph} function takes the filename of the CSV file containing the train connections as input. It initializes the map structure and then reads the file line by line. For each line, it parses the source city, destination city, and travel time. It uses the \texttt{lookup} function to retrieve the \texttt{city} structures for the source and destination cities (creating them if they don't exist) and then calls the \texttt{connect} function to add the bidirectional connection.
+
+\subsection*{deep\_first (Initial Search)}
+The initial shortest path search is implemented using a recursive depth-first search approach. The \texttt{deep\_first} function takes the current city (\texttt{from}), the target city (\texttt{to}), and the remaining allowed travel time (\texttt{left}) as input. It explores the neighbors of the current city. If a path to the target city is found within the time limit, the total travel time is returned. A depth limit is implicitly enforced by the \texttt{left} parameter, preventing infinitely long searches.
+
+\subsection*{shortest\_path and search (Loop Detection)}
+To address the issue of potential infinite loops in the depth-first search, an improved version with loop detection is implemented. The \texttt{shortest\_path} function takes the current city, the target city, an array to track the current path (\texttt{path}), and the current path length (\texttt{k}) as input. Before exploring the neighbors of the current city, it checks if the neighbor has already been visited in the current path using the \texttt{loop} function. If a loop is detected, that branch of the search is terminated. The \texttt{search} function acts as a wrapper, initializing the path array and calling the \texttt{shortest\_path} function.
+
+\section*{Code Review - lookup}
+
+\begin{minted}{c}
+city* lookup(map *trains, char *name) {
+    int index = hash(name, MOD);
+    city_node *current = trains->buckets[index];
+
+    // Search for the city in the bucket
+    while (current != NULL) {
+        if (strcmp(current->city_ptr->name, name) == 0) {
+            return current->city_ptr; // City found
+        }
+        current = current->next;
+    }
+
+    // City not found, create a new one
+    city *new_city = (city*)malloc(sizeof(city));
+    if (!new_city) {
+        perror("malloc failed");
+        exit(EXIT_FAILURE);
+    }
+
+    new_city->name = strdup(name);
+    if (!new_city->name) {
+        perror("strdup failed");
+        free(new_city);
+        exit(EXIT_FAILURE);
+    }
+
+    new_city->connections = NULL;
+
+    // Add the new city to the hash table
+    city_node *new_node = (city_node*)malloc(sizeof(city_node));
+    if (!new_node) {
+        perror("malloc failed");
+        free(new_city->name);
+        free(new_city);
+        exit(EXIT_FAILURE);
+    }
+
+    new_node->city_ptr = new_city;
+    new_node->next = trains->buckets[index];
+    trains->buckets[index] = new_node;
+
+    trains->city_count++;
+    return new_city;
+}
+\end{minted}
+
+The \texttt{lookup} function is crucial for building the graph. It first calculates the hash index for the given city name. Then, it iterates through the linked list of city nodes in the corresponding hash bucket. If a city with the matching name is found, a pointer to that city's structure is returned. If the city is not found in the bucket, a new \texttt{city} structure is allocated memory, and its name is duplicated using \texttt{strdup}. A new \texttt{city\_node} is then created to hold the new city, and this node is added to the beginning of the linked list in the hash bucket. The city count in the map is incremented, and a pointer to the newly created city is returned. This ensures that each unique city name in the input file is represented by a single \texttt{city} structure in the graph.
+
+\section*{Results and Analysis}
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{|l|l|c|c|c|}
+    \hline
+    \textbf{From} & \textbf{To} & \textbf{Time Takes (min)} & \textbf{Shortest (ms)} & \textbf{Loop Free (ms)} \\
+    \hline
+    Malmö & Göteborg & 153 & 432 & 257 \\
+    Göteborg & Stockholm & 211 & 467 & 120 \\
+    Malmö & Stockholm & 273 & 461 & 197 \\
+    Stockholm & Sundsvall & 327 & 325 & 165 \\
+    Stockholm & Umeå & 517 & N/A & 228 \\
+    Göteborg & Sundsvall & 515 & N/A & 206 \\
+    Sundsvall & Umeå & 190 & 0.161 & 616 \\
+    Umeå & Göteborg & 705 & N/A & 205 \\
+    Göteborg & Umeå & 705 & N/A & 289 \\
+    \hline
+    \end{tabular}
+    \caption{Shortest path and loop-free times between cities using \texttt{shortest} and \texttt{search} commands.}
+    \label{tab:city_paths}
+\end{table}
+
+Table \ref{tab:city_paths} presents the benchmark results for finding the shortest path between various city pairs using both the initial depth-first search with a limit (\texttt{shortest} command in the original \texttt{main} function, corresponding to the "Shortest (ms)" column) and the improved depth-first search with loop detection (\texttt{search} command in the modified \texttt{main} function, corresponding to the "Loop Free (ms)" column). The "Time Takes (min)" column indicates the actual shortest travel time between the cities.
+
+The results indicate that the initial depth-first search with a limit often struggled to find paths for longer distances or might have exceeded the time limit (indicated by "N/A"). This suggests that without proper loop detection, the search could explore many redundant paths, leading to inefficiency or even getting stuck in cycles.
+
+The implementation with loop detection ("Loop Free (ms)") generally shows improved performance and was able to find paths for most of the tested city pairs. For example, the path from Göteborg to Stockholm was found much faster with loop detection (120 ms vs 467 ms). Similarly, paths that were not found by the initial search (Stockholm to Umeå, Göteborg to Sundsvall, Umeå to Göteborg, and Göteborg to Umeå) were successfully found with loop detection.
+
+However, there are some cases where the loop-free version took longer (e.g., Sundsvall to Umeå). This could be due to the overhead of checking for loops in each recursive call. The optimal performance might depend on the specific structure of the graph and the path being searched.
+
+The "Time Takes (min)" column provides a reference for the actual shortest path duration. While the benchmark focuses on the execution time of the search algorithms, the correctness of the found path (in terms of total travel time) would need to be verified separately.
+
+\section*{Conclusion}
+This report demonstrated the implementation of a graph data structure to represent the Swedish train network and the application of depth-first search algorithms to find the shortest path between cities. The initial depth-first search with a depth limit proved to be inefficient and unreliable for longer paths due to the potential for exploring loops. The introduction of loop detection significantly improved the performance and the ability to find paths for more complex queries. While the depth-first search with loop detection provides a functional solution, it might not be the most efficient algorithm for finding the absolute shortest path in larger graphs. Algorithms like Dijkstra's algorithm are typically preferred for finding the shortest paths in weighted graphs as they guarantee finding the optimal solution and often have better performance characteristics for such problems. The choice of data structure (adjacency list with a hash table for city lookup) proved to be suitable for representing the graph and efficiently accessing city information.
+\end{document}

@@ -1,0 +1,85 @@
+
+Shortest path without detecting loop, 500 left
+
+$ ./shortest trains.csv Malmö Göteborg
+Finding shortest path from Malmö to Göteborg...
+Shortest path: 153 minutes (found in 432 ms)
+$ ./shortest trains.csv Göteborg Stockholm
+Finding shortest path from Göteborg to Stockholm...
+Shortest path: 211 minutes (found in 467 ms)
+$ ./shortest trains.csv Malmö Stockholm
+Finding shortest path from Malmö to Stockholm...
+Shortest path: 273 minutes (found in 461 ms)
+$ ./shortest trains.csv Stockholm Sundsvall
+Finding shortest path from Stockholm to Sundsvall...
+Shortest path: 327 minutes (found in 325 ms)
+$ ./shortest trains.csv Stockholm Umeå
+Finding shortest path from Stockholm to Umeå...
+No path found!
+$ ./shortest trains.csv Göteborg Sundsvall
+Finding shortest path from Göteborg to Sundsvall...
+No path found!
+$ ./shortest trains.csv Sundsvall Umeå
+Finding shortest path from Sundsvall to Umeå...
+Shortest path: 190 minutes (found in 0.161 ms)
+$ ./shortest trains.csv Umeå Göteborg
+Finding shortest path from Umeå to Göteborg...
+No path found!
+$ ./shortest trains.csv Göteborg Umeå
+Finding shortest path from Göteborg to Umeå...
+No path found!
+
+
+
+Shortest path with detecting loop
+
+$ ./loopfree trains.csv Malmö Göteborg
+Finding shortest path from Malmö to Göteborg...
+Shortest path: 153 minutes (found in 257 ms)
+$ ./loopfree trains.csv Göteborg Stockholm
+Finding shortest path from Göteborg to Stockholm...
+Shortest path: 211 minutes (found in 120 ms)
+$ ./loopfree trains.csv Malmö Stockholm
+Finding shortest path from Malmö to Stockholm...
+Shortest path: 273 minutes (found in 197 ms)
+$ ./loopfree trains.csv Stockholm Sundsvall
+Finding shortest path from Stockholm to Sundsvall...
+Shortest path: 327 minutes (found in 165 ms)
+$ ./loopfree trains.csv Stockholm Umeå
+Finding shortest path from Stockholm to Umeå...
+Shortest path: 517 minutes (found in 228 ms)
+$ ./loopfree trains.csv Göteborg Sundsvall
+Finding shortest path from Göteborg to Sundsvall...
+Shortest path: 515 minutes (found in 206 ms)
+$ ./loopfree trains.csv Sundsvall Umeå
+Finding shortest path from Sundsvall to Umeå...
+Shortest path: 190 minutes (found in 616 ms)
+$ ./loopfree trains.csv Umeå Göteborg
+Finding shortest path from Umeå to Göteborg...
+Shortest path: 705 minutes (found in 205 ms)
+$ ./loopfree trains.csv Göteborg Umeå
+Finding shortest path from Göteborg to Umeå...
+Shortest path: 705 minutes (found in 289 ms)
+
+
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{|l|l|c|c|c|}
+    \hline
+    \textbf{From} & \textbf{To} & \textbf{Time Takes (min)} & \textbf{Shortest (ms)} & \textbf{Loop Free (ms)} \\
+    \hline
+    Malmö & Göteborg & 153 & 432 & 257 \\
+    Göteborg & Stockholm & 211 & 467 & 120 \\
+    Malmö & Stockholm & 273 & 461 & 197 \\
+    Stockholm & Sundsvall & 327 & 325 & 165 \\
+    Stockholm & Umeå & 517 & N/A & 228 \\
+    Göteborg & Sundsvall & 515 & N/A & 206 \\
+    Sundsvall & Umeå & 190 & 0.161 & 616 \\
+    Umeå & Göteborg & 705 & N/A & 205 \\
+    Göteborg & Umeå & 705 & N/A & 289 \\
+    \hline
+    \end{tabular}
+    \caption{Shortest path and loop-free times between cities using \texttt{shortest} and \texttt{loopfree} commands.}
+    \label{tab:city_paths}
+\end{table}

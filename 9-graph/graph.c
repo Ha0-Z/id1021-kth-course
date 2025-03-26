@@ -1,274 +1,312 @@
-#include <stdio.h>
 #include <stdlib.h>
+#include <stdio.h>
+#include <limits.h>
+#include <wchar.h>
 #include <string.h>
-#include <stdint.h>
+#include <locale.h>
+#include <time.h>
+#include <stdint.h> // For uint
+#include <sys/time.h> // For gettimeofday
 
-#define BUFFER 256
-#define MOD 101 // A prime number for the hash table size
+#define BUFFER 1024
+#define MOD 101 // A prime number for hash table size
 
-// Structure for a connection between cities
+// Structure to represent a connection to another city
 typedef struct connection {
-    struct city *destination;
-    int distance;
-    struct connection *next;
-} connection;
+  struct city *destination;
+  int distance;
+  struct connection *next;
+} conn;
 
-// Structure for a city
+// Structure to represent a city
 typedef struct city {
-    char *name;
-    connection *connections;
-    struct city *next; // For the linked list in the hash bucket
+  wchar_t *name;
+  conn *connections;
 } city;
 
-// Structure for the map (hash table of cities)
+// Structure to represent the map (using a hash table of cities)
 typedef struct map {
     city **cities;
 } map;
 
-// Hash function
-int hash(char *name, int mod) {
-    int h = 0;
-    int i = 0;
-    unsigned char c = 0;
-    while ((c = name[i]) != 0) {
-        h = (h * 31 + c) % mod;
-        i++;
-    }
-    return h;
+// Function to add a connection between two cities
+void connect(city *src, city *dst, int distance) {
+  // Add connection from src to dst
+  conn *new_conn_src = (conn*)malloc(sizeof(conn));
+
+  new_conn_src->destination = dst;
+  new_conn_src->distance = distance;
+  new_conn_src->next = src->connections;
+  src->connections = new_conn_src;
+
+  // Add connection from dst to src (bidirectional)
+  conn *new_conn_dst = (conn*)malloc(sizeof(conn));
+
+  new_conn_dst->destination = src;
+  new_conn_dst->distance = distance;
+  new_conn_dst->next = dst->connections;
+  dst->connections = new_conn_dst;
 }
 
-// Procedure to add a connection to a city
-void connect_cities(city *src, city *dst, int dist) {
-    // Add connection from src to dst
-    connection *new_conn_src = (connection *)malloc(sizeof(connection));
-    if (new_conn_src == NULL) {
-        perror("Memory allocation failed");
-        exit(EXIT_FAILURE);
-    }
-    new_conn_src->destination = dst;
-    new_conn_src->distance = dist;
-    new_conn_src->next = src->connections;
-    src->connections = new_conn_src;
+// Structure to represent a node in the hash table bucket
+typedef struct city_node {
+  city *city_ptr;
+  struct city_node *next;
+} city_node;
 
-    // Add connection from dst to src (bidirectional)
-    connection *new_conn_dst = (connection *)malloc(sizeof(connection));
-    if (new_conn_dst == NULL) {
-        perror("Memory allocation failed");
-        exit(EXIT_FAILURE);
-    }
-    new_conn_dst->destination = src;
-    new_conn_dst->distance = dist;
-    new_conn_dst->next = dst->connections;
-    dst->connections = new_conn_dst;
+// Structure to represent the map (using a hash table of city nodes)
+typedef struct map {
+  city_node **buckets;
+} map;
+
+// Hash function to generate a hash value for a city name
+int hash(wchar_t *name, int mod) {
+  int h = 0;
+  int i = 0;
+  wchar_t c = 0;
+  while ((c = name[i]) != 0) {
+      h = (h * 31 + c) % mod;
+      i++;
+  }
+  return h;
 }
 
-// Lookup procedure to find a city by name in the hash table
-city *lookup(city **cities, char *name) {
-    int index = hash(name, MOD);
-    city *current = cities[index];
-    while (current != NULL) {
-        if (strcmp(current->name, name) == 0) {
-            return current;
-        }
-        current = current->next;
-    }
+// Function to lookup a city in the hash table. Creates a new city if not found.
+city* lookup(map *trains, char *name_mb) {
+  wchar_t name_wc[BUFFER]; // Use a buffer for conversion
+  mbstate_t ps;
+  memset(&ps, 0, sizeof(ps)); // Initialize conversion state
 
-    // City not found, create a new one
-    city *new_city = (city *)malloc(sizeof(city));
-    if (new_city == NULL) {
-        perror("Memory allocation failed");
-        exit(EXIT_FAILURE);
-    }
-    new_city->name = strdup(name);
-    if (new_city->name == NULL) {
-        perror("Memory allocation failed");
-        free(new_city);
-        exit(EXIT_FAILURE);
-    }
-    new_city->connections = NULL;
-    new_city->next = cities[index];
-    cities[index] = new_city;
-    return new_city;
+  size_t res = mbsrtowcs(name_wc, (const char**)&name_mb, BUFFER - 1, &ps);
+  if (res == (size_t)-1) {
+      perror("mbsrtowcs failed");
+      return NULL;
+  }
+  name_wc[res] = 0; // Null-terminate the wide character string
+
+  int index = hash_w(name_wc, MOD);
+  city_node *current = trains->buckets[index];
+
+  while (current != NULL) {
+      if (wcscmp(current->city_ptr->name, name_wc) == 0) {
+          return current->city_ptr;
+      }
+      current = current->next;
+  }
+
+  city *new_city = (city*)malloc(sizeof(city));
+  if (new_city == NULL) {
+      perror("malloc failed");
+      exit(EXIT_FAILURE);
+  }
+  new_city->name = wcsdup(name_wc); // Duplicate the wide character string
+  new_city->connections = NULL;
+
+  city_node *new_node = (city_node*)malloc(sizeof(city_node));
+  if (new_node == NULL) {
+      perror("malloc failed");
+      free(new_city);
+      exit(EXIT_FAILURE);
+  }
+  new_node->city_ptr = new_city;
+  new_node->next = trains->buckets[index];
+  trains->buckets[index] = new_node;
+
+  return new_city;
 }
 
-// Function to build the graph from a file
-map *graph(char *file) {
-    city **cities = (city **)malloc(sizeof(city *) * MOD);
-    if (cities == NULL) {
-        perror("Memory allocation failed");
-        exit(EXIT_FAILURE);
-    }
-    for (int i = 0; i < MOD; i++) {
-        cities[i] = NULL;
-    }
+// Function to lookup a city in the hash table. Creates a new city if not found.
+city* lookup(city **cities, char *name) {
+  int index = hash(name, MOD);
+  city *current = cities[index];
 
-    map *trains = (map *)malloc(sizeof(map));
-    if (trains == NULL) {
-        perror("Memory allocation failed");
-        free(cities);
-        exit(EXIT_FAILURE);
-    }
-    trains->cities = cities;
+  // Search for the city in the linked list at this hash index
+  while (current != NULL) {
+      if (strcmp(current->name, name) == 0) {
+          return current; // City found
+      }
+      current = current->connections; // In our hash table, we'll store cities directly, so this should be next in the hash bucket's linked list
+  }
 
-    // Open a file in read mode
-    FILE *fptr = fopen(file, "r");
-    if (fptr == NULL) {
-        perror("Error opening file");
-        free(trains);
-        free(cities);
-        return NULL;
-    }
+  // City not found, create a new one
+  city *new_city = (city*)malloc(sizeof(city));
+  if (new_city == NULL) {
+      perror("malloc failed");
+      exit(EXIT_FAILURE);
+  }
+  new_city->name = strdup(name); // Duplicate the name
+  new_city->connections = NULL;
 
-    char *lineptr = malloc(sizeof(char) * BUFFER);
-    if (lineptr == NULL) {
-        perror("Memory allocation failed");
-        fclose(fptr);
-        free(trains);
-        free(cities);
-        return NULL;
-    }
-    size_t n = BUFFER;
-    ssize_t read;
+  // Add the new city to the beginning of the linked list at this hash index
+  new_city->connections = cities[index];
+  cities[index] = new_city;
 
-    while ((read = getline(&lineptr, &n, fptr)) != -1) {
-        // Remove trailing newline character if present
-        if (lineptr[read - 1] == '\n') {
-            lineptr[read - 1] = '\0';
-        }
-
-        char *copy = strdup(lineptr);
-        if (copy == NULL) {
-            perror("Memory allocation failed");
-            free(lineptr);
-            fclose(fptr);
-            // Need to free allocated cities and connections here in a real scenario
-            free(trains);
-            free(cities);
-            return NULL;
-        }
-
-        char *from_city_name = strtok(copy, ",");
-        char *to_city_name = strtok(NULL, ",");
-        char *distance_str = strtok(NULL, ",");
-
-        if (from_city_name && to_city_name && distance_str) {
-            city *src = lookup(cities, from_city_name);
-            city *dst = lookup(cities, to_city_name);
-            uint dist = atoi(distance_str);
-            connect_cities(src, dst, dist);
-        }
-        free(copy);
-    }
-
-    free(lineptr);
-    fclose(fptr);
-    return trains;
+  return new_city;
 }
 
-// Helper function to print the graph (for testing)
-void print_graph(map *trains) {
-    if (trains == NULL || trains->cities == NULL) {
-        printf("Graph is empty.\n");
-        return;
-    }
-    for (int i = 0; i < MOD; i++) {
-        city *current_city = trains->cities[i];
-        while (current_city != NULL) {
-            printf("City: %s\n", current_city->name);
-            connection *current_connection = current_city->connections;
-            while (current_connection != NULL) {
-                printf("  -> %s (%u min)\n", current_connection->destination->name, current_connection->distance);
-                current_connection = current_connection->next;
-            }
-            current_city = current_city->next;
-        }
-    }
+// Function to build the graph from the CSV file
+map* graph(char *file) {
+  map *trains = (map*)malloc(sizeof(map));
+  if (trains == NULL) {
+      perror("malloc failed");
+      exit(EXIT_FAILURE);
+  }
+  trains->buckets = (city_node**)malloc(sizeof(city_node*) * MOD);
+  if (trains->buckets == NULL) {
+      perror("malloc failed");
+      free(trains);
+      exit(EXIT_FAILURE);
+  }
+  for (int i = 0; i < MOD; i++) {
+      trains->buckets[i] = NULL;
+  }
+
+  FILE *fptr = fopen(file, "r");
+  if (fptr == NULL) {
+      perror("Error opening file");
+      free(trains->buckets);
+      free(trains);
+      return NULL;
+  }
+
+  char *lineptr = NULL;
+  size_t n = 0;
+  size_t read;
+
+  while ((read = getline(&lineptr, &n, fptr)) != -1) {
+      // Remove trailing newline character if present
+      if (read > 0 && lineptr[read - 1] == '\n') {
+          lineptr[read - 1] = '\0';
+      }
+
+      char *copy = strdup(lineptr);
+      if (copy == NULL) {
+          perror("strdup failed");
+          free(lineptr);
+          fclose(fptr);
+          // Handle cleanup of already allocated graph if needed
+          return trains;
+      }
+
+      char *from_name = strtok(copy, ",");
+      char *to_name = strtok(NULL, ",");
+      char *dist_str = strtok(NULL, ",");
+
+      if (from_name && to_name && dist_str) {
+          city *src = lookup(trains, from_name);
+          city *dst = lookup(trains, to_name);
+          unsigned int dist = atoi(dist_str);
+          connect(src, dst, dist);
+      }
+
+      free(copy);
+  }
+
+  free(lineptr);
+  fclose(fptr);
+  return trains;
 }
 
-// Helper function to free the memory allocated for the graph
-void free_graph(map *trains) {
-    if (trains == NULL || trains->cities == NULL) {
-        return;
-    }
-    city **cities = trains->cities;
-    for (int i = 0; i < MOD; i++) {
-        city *current_city = cities[i];
-        while (current_city != NULL) {
-            city *next_city = current_city->next;
-            free(current_city->name);
-            connection *current_connection = current_city->connections;
-            while (current_connection != NULL) {
-                connection *next_connection = current_connection->next;
-                free(current_connection);
-                current_connection = next_connection;
-            }
-            free(current_city);
-            current_city = next_city;
-        }
-    }
-    free(cities);
-    free(trains);
+// Initial depth-first search for the shortest path (with a depth limit)
+int deep_first(city *from, city *to, int left) {
+  if (from == to) {
+      return 0;
+  }
+  int sofar = -1;
+  conn *nxt = from->connections;
+  while (nxt != NULL) {
+      if (nxt->distance <= left) {
+          int d = deep_first(nxt->destination, to, left - nxt->distance);
+          if (d >= 0 && (sofar == -1 || (d + nxt->distance) < sofar)) {
+              sofar = (d + nxt->distance);
+          }
+      }
+      nxt = nxt->next;
+  }
+  return sofar;
 }
 
-int main() {
-    // Create a dummy CSV file for testing
-    FILE *test_file = fopen("train_connections.csv", "w");
-    if (test_file == NULL) {
-        perror("Error creating test file");
-        return 1;
-    }
-    fprintf(test_file, "Stockholm,Uppsala,39\n");
-    fprintf(test_file, "Stockholm,Göteborg,270\n");
-    fprintf(test_file, "Uppsala,Gävle,72\n");
-    fprintf(test_file, "Göteborg,Malmö,165\n");
-    fprintf(test_file, "Malmö,Lund,13\n");
-    fclose(test_file);
+void free() {
+// Free every thing...
 
-    map *train_map = graph("train_connections.csv");
-
-    if (train_map != NULL) {
-        printf("Train map created successfully.\n");
-        print_graph(train_map);
-        free_graph(train_map);
-    } else {
-        printf("Failed to create train map.\n");
-    }
-
-    // Clean up the test file
-    remove("train_connections.csv");
-
-    return 0;
 }
 
-/*
-Choice of Hash Table Implementation: Buckets (Separate Chaining)
+void init() {
 
-Pros:
-1. Simplicity: Implementing separate chaining with linked lists is relatively straightforward.
-2. Collision Handling: Collisions are handled gracefully. When multiple keys hash to the same index, they are simply added to the linked list at that index. The performance degrades linearly with the length of the linked list in the worst case.
-3. Deletion: Deleting an element is easy; we just need to remove the corresponding node from the linked list.
-4. Load Factor: The hash table can have a load factor greater than 1 without a catastrophic performance degradation (though very long lists should be avoided).
+}
 
-Cons:
-1. Extra Memory: Requires extra memory for the linked list nodes (pointers).
-2. Cache Performance: Can have poorer cache performance compared to open addressing, especially if the linked lists become long, as the nodes might be scattered in memory.
+// Helper function to calculate the time difference in milliseconds
+long long time_diff_ms(struct timeval start, struct timeval end) {
+    return (end.tv_sec - start.tv_sec) * 1000LL + (end.tv_usec - start.tv_usec) / 1000;
+}
 
-Collision Check:
+int main(int argc, char *argv) {
+  setlocale(LC_ALL, "en_US.UTF-8");
 
-To check for collisions, we can observe the output of the `print_graph` function. If multiple cities hash to the same index, they will appear under the same hash index in the `trains->cities` array (though the `print_graph` function as implemented doesn't explicitly show the hash indices).
+  if (argc < 3) { // Adjusted argument count
+      printf("usage: %s <trains.csv> <from_city> <to_city>\n", argv[0]);
+      exit(EXIT_FAILURE);
+  }
 
-Alternatively, we could add some debug code within the `lookup` function to count how many cities end up in each bucket. After running the code with the provided example data, we can analyze the distribution.
+  map *trains = graph(argv[1]);
+  if (trains == NULL) {
+      fprintf(stderr, "Failed to load the graph.\n");
+      exit(EXIT_FAILURE);
+  }
 
-Let's manually calculate the hash values for the example cities with MOD = 101:
-- Stockholm: (('S'*31 + 't')*31 + 'o')*31 + 'c')*31 + 'k')*31 + 'h')*31 + 'o')*31 + 'l')*31 + 'm') % 101
-             = ((((((((83*31 + 116)*31 + 111)*31 + 99)*31 + 107)*31 + 104)*31 + 111)*31 + 108)*31 + 109) % 101 = 36
-- Uppsala:   (((((85*31 + 112)*31 + 112)*31 + 97)*31 + 108)*31 + 97) % 101 = 8
-- Göteborg:  ((((((71*31 + 111)*31 + 116)*31 + 101)*31 + 98)*31 + 111)*31 + 114)*31 + 103) % 101 = 95
-- Malmö:     (((((77*31 + 97)*31 + 108)*31 + 109)*31 + 111) % 101 = 84
-- Lund:      ((((76*31 + 117)*31 + 110)*31 + 100) % 101 = 23
-- Gävle:     (((((71*31 + 228)*31 + 118)*31 + 108)*31 + 101) % 101 = 67 (assuming UTF-8 for ä)
+  // Convert command line arguments to wide character strings
+  wchar_t from_name_wc[BUFFER];
+  wchar_t to_name_wc[BUFFER];
+  mbstate_t ps;
+  memset(&ps, 0, sizeof(ps));
 
-Based on these hash values, we can see that there are no collisions in this small example. However, with a larger dataset, collisions are likely to occur. The separate chaining approach will handle these collisions by adding the cities to the same linked list at the corresponding hash index.
+  size_t res_from = mbsrtowcs(from_name_wc, (const char**)&argv[2], BUFFER - 1, &ps);
+  if (res_from == (size_t)-1) {
+      perror("mbsrtowcs failed for from city");
+      // Handle error
+      exit(EXIT_FAILURE);
+  }
+  from_name_wc[res_from] = 0;
 
-To more rigorously check for collisions with a larger dataset, one would need to process the entire list of 52 cities and 75 connections and see if any two city names produce the same hash value modulo 101.
-*/
+  memset(&ps, 0, sizeof(ps)); // Reset state for the next conversion
+  size_t res_to = mbsrtowcs(to_name_wc, (const char**)&argv[3], BUFFER - 1, &ps);
+  if (res_to == (size_t)-1) {
+      perror("mbsrtowcs failed for to city");
+      // Handle error
+      exit(EXIT_FAILURE);
+  }
+  to_name_wc[res_to] = 0;
+
+  // Now we need to find the city structures using the wide character names
+  // We'll need a modified lookup function or we can temporarily convert back to char* for lookup.
+  // Let's stick with char* in lookup for simplicity, but ensure the internal storage in city is wchar_t*.
+
+  city *from = lookup(trains, argv[2]); // Keep using char* for lookup for now
+  city *to = lookup(trains, argv[3]);   // The lookup function now handles the conversion
+
+  if (from == NULL || to == NULL) {
+      fprintf(stderr, "City not found.\n");
+      // Free the graph if needed
+      exit(EXIT_FAILURE);
+  }
+
+  struct timeval t_start, t_stop;
+  gettimeofday(&t_start, NULL);
+
+  int s = search_with_dynamic_limit(from, to);
+
+  gettimeofday(&t_stop, NULL);
+  long long wall_ms = time_diff_ms(t_start, t_stop);
+
+  if (s > 0) {
+      printf("Shortest path %d found in %lldms\n", s, wall_ms);
+  } else {
+      printf("No path found.\n");
+  }
+
+  // ... (free graph memory) ...
+
+  free();
+
+  return 0;
+}

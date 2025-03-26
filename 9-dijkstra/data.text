@@ -1,0 +1,130 @@
+Possible improvements:
+In this approach I used a linked datastructure for my queue. But a more efficient way of solving the problem is to use tree where the root have shortest distance from the queue and every node have branches which is larger than itself.
+By theory the complexity of insert new node to the queue will decrease to O(n) complexity.
+But unfortunally I did not managed to accomplish it.
+But even I managed to estalish treed queue, I will not suggest that the real run time will decrease with decent.
+The reason is, we need to have multiple instead only one comparision of distance on each node of the tree, and since the data set is small(202 cities). There fore the improvement will not be significant.
+
+hector@Titan-Desk:~/id1021/9-dijkstra$ ./run europe.csv Stockholm Madrid
+Finding shortest path from Stockholm to Madrid...
+Shortest path found:
+Path: Stockholm -> Södertälje -> Norrköping -> Linköping -> Mjölby -> Nässjö -> Alvesta -> Hässleholm -> Lund -> Landskrona -> Köpenhamn -> Hamburg -> Hannover -> Köln -> Liege -> Bryssel -> Lille -> Paris -> Lyon -> Montpellier -> Barcelona -> Zaragoza -> Madrid
+Shortest path: 1620 minutes (found in 17511 ns)
+
+
+
+./run europe.csv Malmö Göteborg
+Finding shortest path from Malmö to Göteborg...
+Shortest path found:
+Path: Malmö -> Lund -> Åstorp -> Halmstad -> Varberg -> Göteborg
+Shortest path: 153 minutes (found in 42428 ns)
+./run europe.csv Malmö Göteborg
+Finding shortest path from Malmö to Göteborg...
+Shortest path found:
+Path: Malmö -> Lund -> Åstorp -> Halmstad -> Varberg -> Göteborg
+Shortest path: 153 minutes (found in 32629 ns)
+./run europe.csv Malmö Stockholm
+Finding shortest path from Malmö to Stockholm...
+Shortest path found:
+Path: Malmö -> Lund -> Hässleholm -> Alvesta -> Nässjö -> Mjölby -> Linköping -> Norrköping -> Södertälje -> Stockholm
+Shortest path: 273 minutes (found in 42270 ns)
+./run europe.csv Stockholm Sundsvall
+Finding shortest path from Stockholm to Sundsvall...
+Shortest path found:
+Path: Stockholm -> Uppsala -> Gävle -> Sundsvall
+Shortest path: 327 minutes (found in 45689 ns)
+./run europe.csv Stockholm Umeå
+Finding shortest path from Stockholm to Umeå...
+Shortest path found:
+Path: Stockholm -> Uppsala -> Gävle -> Sundsvall -> Umeå
+Shortest path: 517 minutes (found in 49273 ns)
+./run europe.csv Göteborg Sundsvall
+Finding shortest path from Göteborg to Sundsvall...
+Shortest path found:
+Path: Göteborg -> Herrljunga -> Falköping -> Skövde -> Hallsberg -> Örebro -> Frövi -> Fagersta -> Avesta -> Storvik -> Gävle -> Sundsvall
+Shortest path: 515 minutes (found in 49377 ns)
+./run europe.csv Sundsvall Umeå
+Finding shortest path from Sundsvall to Umeå...
+Shortest path found:
+Path: Sundsvall -> Umeå
+Shortest path: 190 minutes (found in 17462 ns)
+./run europe.csv Umeå Göteborg
+Finding shortest path from Umeå to Göteborg...
+Shortest path found:
+Path: Umeå -> Sundsvall -> Gävle -> Storvik -> Avesta -> Fagersta -> Frövi -> Örebro -> Hallsberg -> Skövde -> Falköping -> Herrljunga -> Göteborg
+Shortest path: 705 minutes (found in 40488 ns)
+./run europe.csv Göteborg Umeå
+Finding shortest path from Göteborg to Umeå...
+Shortest path found:
+Path: Göteborg -> Herrljunga -> Falköping -> Skövde -> Hallsberg -> Örebro -> Frövi -> Fagersta -> Avesta -> Storvik -> Gävle -> Sundsvall -> Umeå
+Shortest path: 705 minutes (found in 65006 ns)
+
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{|l|l|c|c|c|}
+    \hline
+    \textbf{From} & \textbf{To} & \textbf{Time Takes (min)} & \textbf{Loop Free (ms)} & \textbf{Dijkstra (ns)} \\
+    \hline
+    Malmö & Göteborg & 153 & 257 & 32629 \\
+    Göteborg & Stockholm & 211 & 120 & N/A \\
+    Malmö & Stockholm & 273 & 197 & 42270 \\
+    Stockholm & Sundsvall & 327 & 165 & 45689 \\
+    Stockholm & Umeå & 517 & 228 & 49273 \\
+    Göteborg & Sundsvall & 515 & 206 & 49377 \\
+    Sundsvall & Umeå & 190 & 616 & 17462 \\
+    Umeå & Göteborg & 705 & 205 & 40488 \\
+    Göteborg & Umeå & 705 & 289 & 65006 \\
+    \hline
+    \end{tabular}
+    \caption{Shortest path and loop-free times between cities using \texttt{loopfree} commands, and Dijkstra's algorithm results.}
+    \label{tab:city_paths_updated}
+\end{table}
+
+
+priority-queue:
+hector@Titan-Desk:~/id1021/9-dijkstra$ ./run europe.csv Malmö Göteborg
+Finding shortest path from Malmö to Göteborg...
+Shortest path found:
+Path: Malmö -> Lund -> Åstorp -> Halmstad -> Varberg -> Göteborg
+Shortest path: 153 minutes (found in 37866 ns)
+hector@Titan-Desk:~/id1021/9-dijkstra$ ./run europe.csv Malmö Göteborg
+Finding shortest path from Malmö to Göteborg...
+Shortest path found:
+Path: Malmö -> Lund -> Åstorp -> Halmstad -> Varberg -> Göteborg
+Shortest path: 153 minutes (found in 32382 ns)
+hector@Titan-Desk:~/id1021/9-dijkstra$ ./run europe.csv Malmö Stockholm
+Finding shortest path from Malmö to Stockholm...
+Shortest path found:
+Path: Malmö -> Lund -> Hässleholm -> Alvesta -> Nässjö -> Mjölby -> Linköping -> Norrköping -> Södertälje -> Stockholm
+Shortest path: 273 minutes (found in 47346 ns)
+hector@Titan-Desk:~/id1021/9-dijkstra$ ./run europe.csv Stockholm Sundsvall
+Finding shortest path from Stockholm to Sundsvall...
+Shortest path found:
+Path: Stockholm -> Uppsala -> Gävle -> Sundsvall
+Shortest path: 327 minutes (found in 46741 ns)
+hector@Titan-Desk:~/id1021/9-dijkstra$ ./run europe.csv Stockholm Umeå
+Finding shortest path from Stockholm to Umeå...
+Shortest path found:
+Path: Stockholm -> Uppsala -> Gävle -> Sundsvall -> Umeå
+Shortest path: 517 minutes (found in 56197 ns)
+hector@Titan-Desk:~/id1021/9-dijkstra$ ./run europe.csv Göteborg Sundsvall
+Finding shortest path from Göteborg to Sundsvall...
+Shortest path found:
+Path: Göteborg -> Herrljunga -> Falköping -> Skövde -> Hallsberg -> Örebro -> Frövi -> Fagersta -> Avesta -> Storvik -> Gävle -> Sundsvall
+Shortest path: 515 minutes (found in 55557 ns)
+hector@Titan-Desk:~/id1021/9-dijkstra$ ./run europe.csv Sundsvall Umeå
+Finding shortest path from Sundsvall to Umeå...
+Shortest path found:
+Path: Sundsvall -> Umeå
+Shortest path: 190 minutes (found in 19006 ns)
+hector@Titan-Desk:~/id1021/9-dijkstra$ ./run europe.csv Umeå Göteborg
+Finding shortest path from Umeå to Göteborg...
+Shortest path found:
+Path: Umeå -> Sundsvall -> Gävle -> Storvik -> Avesta -> Fagersta -> Frövi -> Örebro -> Hallsberg -> Skövde -> Falköping -> Herrljunga -> Göteborg
+Shortest path: 705 minutes (found in 50467 ns)
+hector@Titan-Desk:~/id1021/9-dijkstra$ ./run europe.csv Göteborg Umeå
+Finding shortest path from Göteborg to Umeå...
+Shortest path found:
+Path: Göteborg -> Herrljunga -> Falköping -> Skövde -> Hallsberg -> Örebro -> Frövi -> Fagersta -> Avesta -> Storvik -> Gävle -> Sundsvall -> Umeå
+Shortest path: 705 minutes (found in 60758 ns)

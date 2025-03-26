@@ -1,0 +1,94 @@
+\begin{document}
+
+\maketitle
+
+\section*{Introduction}
+This report details the implementation of Dijkstra's algorithm to find the shortest train routes in Sweden, building upon the graph representation developed in the previous assignment. The primary limitation of the depth-first search approach used earlier was its inefficiency in handling cycles and redundant explorations. Dijkstra's algorithm addresses this by systematically exploring the graph, always prioritizing the path with the shortest accumulated distance from the source. This ensures that the first time a destination is reached, it is via the shortest path. The algorithm can efficiently compute the shortest path from a single source to all other reachable nodes in the network.
+
+\section*{Method}
+The implementation was done in C, utilizing standard libraries. Benchmarking was performed on the same hardware as the previous assignment (Intel i7-13700K CPU). The code was compiled using GCC. Time measurements were taken using \texttt{clock\_gettime()} with \texttt{CLOCK\_MONOTONIC}. The performance of Dijkstra's algorithm was evaluated by finding the shortest paths between the same set of city pairs used in the previous benchmark and comparing the execution times. Additionally, the shortest path from Stockholm to Madrid in a larger European dataset was computed.
+
+\section*{Implementation}
+
+\subsection*{Data Structures}
+The core data structures remain similar to the previous assignment, with some modifications to support Dijkstra's algorithm:
+
+\begin{itemize}
+    \item \texttt{city}: Now includes an integer identifier (\texttt{id}) for potential array indexing and a structure to hold its neighbors. The user mentioned using a linked list for neighbors, similar to the previous assignment.
+    \item \texttt{connection}: Remains the same, storing the destination city and the travel time.
+    \item \texttt{path}: A new structure to represent a path being explored by Dijkstra's algorithm. It contains a pointer to the current city (\texttt{city}), a pointer to the previous city in the path (\texttt{prev}), and the total distance traveled so far (\texttt{dist}).
+\end{itemize}
+
+\subsection*{\texttt{done} Array}
+The algorithm uses an array called \texttt{done} to keep track of the shortest path found so far to each city. The index of this array corresponds to the city's unique identifier (\texttt{id}). Each entry in the \texttt{done} array stores information about the shortest path to that city from the source.
+
+\subsection*{Priority Queue}
+A priority queue is used to store potential paths to expand. The priority of a path is determined by its total distance (\texttt{dist}). The algorithm always expands the search from the path with the smallest distance in the priority queue. The user mentioned using a linked data structure for the priority queue in their implementation. They also noted that a more efficient implementation could use a tree-based structure (like a binary heap) to potentially reduce the complexity of insertion.
+
+\subsection*{Dijkstra's Algorithm Implementation (Conceptual)}
+The general steps of Dijkstra's algorithm as likely implemented are:
+
+\begin{enumerate}
+    \item Initialize the distance to all cities as infinity, except for the source city, which has a distance of 0.
+    \item Create a priority queue and add the source city with a distance of 0.
+    \item While the priority queue is not empty:
+    \begin{enumerate}
+        \item Extract the path with the minimum distance from the priority queue. Let the current city be $u$ and its distance be $d$.
+        \item If the shortest distance to $u$ has already been found (i.e., $u$ is in the \texttt{done} set), skip this path.
+        \item Mark $u$ as visited and record the shortest distance to it as $d$ in the \texttt{done} array, along with the previous city in the path.
+        \item For each neighbor $v$ of $u$ with a connection cost $w$:
+        \begin{itemize}
+            \item Calculate the new distance to $v$ as $d + w$.
+            \item If this new distance is shorter than the current shortest distance to $v$, add a new path to the priority queue for city $v$ with the updated distance and the current city $u$ as the previous city.
+        \end{itemize}
+    \end{enumerate}
+    \item Once the destination city is reached or the priority queue is empty, the shortest path can be reconstructed by backtracking from the destination city using the \texttt{prev} pointers stored in the \texttt{done} array.
+\end{enumerate}
+
+\section*{Code Review}
+Due to the limited code provided for the Dijkstra's implementation, a detailed code review of a specific function is not feasible. However, based on the description, the core logic would involve the main Dijkstra's algorithm loop, the priority queue operations (insertion and extraction of the minimum element), and the updating of the \texttt{done} array. The efficiency of the implementation would largely depend on the priority queue's performance. Using a linked list for the priority queue would result in a time complexity of O(n*m) or O(n^2) in the worst case, where n is the number of cities and m is the number of connections, as finding the minimum element in the queue might require a linear scan in each iteration. A more efficient implementation using a binary heap would reduce this to O((n+m)log n).
+
+\section*{Results and Analysis}
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{|l|l|c|c|c|}
+    \hline
+    \textbf{From} & \textbf{To} & \textbf{Time Takes (min)} & \textbf{Loop Free (ms)} & \textbf{Dijkstra (ns)} \\
+    \hline
+    Malmö & Göteborg & 153 & 257 & 32629 \\
+    Göteborg & Stockholm & 211 & 120 & N/A \\
+    Malmö & Stockholm & 273 & 197 & 42270 \\
+    Stockholm & Sundsvall & 327 & 165 & 45689 \\
+    Stockholm & Umeå & 517 & 228 & 49273 \\
+    Göteborg & Sundsvall & 515 & 206 & 49377 \\
+    Sundsvall & Umeå & 190 & 616 & 17462 \\
+    Umeå & Göteborg & 705 & 205 & 40488 \\
+    Göteborg & Umeå & 705 & 289 & 65006 \\
+    \hline
+    \end{tabular}
+    \caption{Shortest path and loop-free times between cities using \texttt{loopfree} commands, and Dijkstra's algorithm results.}
+    \label{tab:city_paths_updated}
+\end{table}
+
+Table \ref{tab:city_paths_updated} presents a comparison between the execution times of the loop-free depth-first search from the previous assignment and Dijkstra's algorithm for finding the shortest paths between the same set of Swedish cities. The time taken for Dijkstra's algorithm is reported in nanoseconds.
+
+The results generally show a significant improvement in performance with Dijkstra's algorithm. The execution times for Dijkstra's algorithm (converted to milliseconds for better comparison, e.g., 32629 ns $\approx$ 0.033 ms) are substantially lower than those of the loop-free depth-first search. This demonstrates the efficiency of Dijkstra's algorithm in finding shortest paths, especially in terms of avoiding redundant computations.
+
+The user also provided the shortest path from Stockholm to Madrid in the European dataset:
+
+\textbf{Path:} Stockholm -> Södertälje -> Norrköping -> Linköping -> Mjölby -> Nässjö -> Alvesta -> Hässleholm -> Lund -> Landskrona -> Köpenhamn -> Hamburg -> Hannover -> Köln -> Liege -> Bryssel -> Lille -> Paris -> Lyon -> Montpellier -> Barcelona -> Zaragoza -> Madrid
+\textbf{Shortest path:} 1620 minutes (found in 17511 ns $\approx$ 0.018 ms)
+
+This result further highlights the capability of Dijkstra's algorithm to find shortest paths in larger networks relatively quickly. The user did not provide the number of entries in the \texttt{done} array for this run, but it would represent the number of cities explored to find the shortest path to Madrid.
+
+\subsection*{Complexity Analysis}
+As the user mentioned using a linked list for the priority queue, the theoretical time complexity of their Dijkstra's implementation would likely be around O(n*m) or O(n^2) in the worst case. Here, $n$ is the number of cities and $m$ is the number of connections. In each iteration, finding the minimum distance in the priority queue (linked list) takes O(n) time, and this is done at most $n$ times. Adding neighbors to the queue takes O(1).
+
+The user correctly pointed out that using a more efficient priority queue, such as a binary heap, could reduce the complexity to O((n+m)log n). The logarithmic factor comes from the heap operations (insertion and extraction).
+
+The benchmark results, showing very fast execution times (in the order of microseconds or milliseconds), suggest that even with a linked list-based priority queue, the algorithm performs well for the relatively small Swedish dataset. For much larger datasets, the benefits of a more efficient priority queue implementation would become more pronounced.
+
+\section*{Conclusion}
+The implementation of Dijkstra's algorithm significantly improved the performance of finding shortest paths in the train network compared to the previous depth-first search approach. Dijkstra's algorithm's systematic exploration and prioritization of shorter paths ensure efficiency and guarantee finding the optimal solution. The benchmark results clearly demonstrate the speed advantage of Dijkstra's algorithm. While the user's implementation likely uses a linked list for the priority queue, resulting in a higher theoretical time complexity, it still performs well for the given datasets. For handling much larger graphs, optimizing the priority queue implementation using a binary heap would be a crucial step to further enhance performance. The successful computation of the shortest path from Stockholm to Madrid in a larger European network further validates the effectiveness of Dijkstra's algorithm for solving shortest path problems.
+\end{document}
